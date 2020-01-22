@@ -1,4 +1,5 @@
 import 'package:cg_tools/utils/appstyle.dart';
+import 'package:cg_tools/utils/magicalpaint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -11,6 +12,8 @@ class DrawPage extends StatefulWidget {
 }
 
 class _DrawPageState extends State<DrawPage> {
+  List<Offset> _points = <Offset>[];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,7 +84,43 @@ class _DrawPageState extends State<DrawPage> {
               color: AppStyle.white,
             ),
           ),
+          SpeedDialChild(
+            backgroundColor: AppStyle.triadic1,
+            child: IconButton(
+              icon: Icon(Icons.remove_circle_outline),
+              color: AppStyle.white,
+              onPressed: () => _points.clear(),
+            ),
+          ),
         ],
+      ),
+      body: Container(
+        height: 700,
+        width: 400,
+        margin: EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.black,
+          ),
+        ),
+        child: SizedBox.expand(
+          child: GestureDetector(
+            onTapDown: (TapDownDetails details) {
+              setState(() {
+                RenderBox object = context.findRenderObject();
+                Offset _localPosition = object.localToGlobal(details.localPosition);
+                    //object.globalToLocal(details.globalPosition);
+                _points = List.from(_points)..add(_localPosition);
+              });
+              print(_points);
+            },
+            onTapCancel: () => _points.add(null),
+            child: CustomPaint(
+              painter: MagicalPaint(points: _points),
+              size: Size.infinite,
+            ),
+          ),
+        ),
       ),
     );
   }
