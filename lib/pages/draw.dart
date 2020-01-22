@@ -108,8 +108,8 @@ class _DrawPageState extends State<DrawPage> {
             onTapDown: (TapDownDetails details) {
               setState(() {
                 RenderBox object = context.findRenderObject();
-                Offset _localPosition = object.localToGlobal(details.localPosition);
-                    //object.globalToLocal(details.globalPosition);
+                Offset _localPosition =
+                    object.localToGlobal(details.localPosition);
                 _points = List.from(_points)..add(_localPosition);
               });
               print(_points);
