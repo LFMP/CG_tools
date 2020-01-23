@@ -1,9 +1,9 @@
+import 'package:cg_tools/utils/figura.dart';
 import 'package:flutter/material.dart';
 
 class MagicalPaint extends CustomPainter {
-  List<Offset> points;
-
-  MagicalPaint({this.points});
+  List<Figura> figuras;
+  MagicalPaint({this.figuras});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -12,13 +12,14 @@ class MagicalPaint extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeWidth = 10.0;
 
-    for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i], points[i + 1], paint);
+    for (int i = 0; i < figuras.length; i++) {
+      if (figuras[i] != null && figuras[i].forma == Forma.linha) {
+        canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[1], paint);
       }
     }
   }
 
   @override
-  bool shouldRepaint(MagicalPaint oldDelegate) => oldDelegate.points != points;
+  bool shouldRepaint(MagicalPaint oldDelegate) =>
+      oldDelegate.figuras.length != figuras.length;
 }

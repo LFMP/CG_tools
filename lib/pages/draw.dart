@@ -1,4 +1,5 @@
 import 'package:cg_tools/utils/appstyle.dart';
+import 'package:cg_tools/utils/figura.dart';
 import 'package:cg_tools/utils/magicalpaint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -13,6 +14,9 @@ class DrawPage extends StatefulWidget {
 
 class _DrawPageState extends State<DrawPage> {
   List<Offset> _points = <Offset>[];
+  List<Figura> objetos = <Figura>[];
+  Forma formaSelecionada = Forma.linha;
+  List<Offset> _localPosition = <Offset>[];
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +56,6 @@ class _DrawPageState extends State<DrawPage> {
         animatedIconTheme: IconThemeData(size: 22.0),
         tooltip: 'Speed Dial',
         heroTag: 'speed-dial-hero-tag',
-        elevation: 8.0,
         shape: CircleBorder(),
         backgroundColor: AppStyle.primary,
         children: [
@@ -89,7 +92,7 @@ class _DrawPageState extends State<DrawPage> {
             child: IconButton(
               icon: Icon(Icons.remove_circle_outline),
               color: AppStyle.white,
-              onPressed: () => _points.clear(),
+              onPressed: () => objetos.clear(),
             ),
           ),
         ],
@@ -106,17 +109,28 @@ class _DrawPageState extends State<DrawPage> {
         child: SizedBox.expand(
           child: GestureDetector(
             onTapDown: (TapDownDetails details) {
-              setState(() {
-                RenderBox object = context.findRenderObject();
-                Offset _localPosition =
-                    object.localToGlobal(details.localPosition);
-                _points = List.from(_points)..add(_localPosition);
-              });
-              print(_points);
+              setState(
+                () {
+                  RenderBox object = context.findRenderObject();
+                  Offset coordenadas =
+                      object.localToGlobal(details.localPosition);
+                  _localPosition.add(coordenadas);
+                  _points = List.from(_points)..add(coordenadas);
+                },
+              );
+              if (formaSelecionada == Forma.linha &&
+                  _localPosition.length == 2) {
+                setState(() {
+                  objetos.add(
+                    Figura(_localPosition, Forma.linha),
+                  );
+                  _localPosition = [];
+                });
+              }
             },
-            onTapCancel: () => _points.add(null),
+            onTapCancel: () => objetos.add(null),
             child: CustomPaint(
-              painter: MagicalPaint(points: _points),
+              painter: MagicalPaint(figuras: objetos),
               size: Size.infinite,
             ),
           ),
