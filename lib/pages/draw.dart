@@ -61,13 +61,15 @@ class _DrawPageState extends State<DrawPage> {
         backgroundColor: AppStyle.primary,
         children: [
           SpeedDialChild(
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.minus),
-              onTap: () => print(formaSelecionada)),
+            backgroundColor: AppStyle.triadic1,
+            child: Icon(MdiIcons.minus),
+            onTap: () => formaSelecionada = Forma.linha,
+          ),
           SpeedDialChild(
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.triangleOutline),
-              onTap: () => formaSelecionada = Forma.triangulo),
+            backgroundColor: AppStyle.triadic1,
+            child: Icon(MdiIcons.triangleOutline),
+            onTap: () => formaSelecionada = Forma.triangulo,
+          ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
             child: Icon(MdiIcons.squareOutline),
@@ -126,6 +128,16 @@ class _DrawPageState extends State<DrawPage> {
                 setState(() {
                   objetos.add(
                     Figura(_localPosition, Forma.triangulo),
+                  );
+                  _localPosition = [];
+                });
+              }
+
+              if (formaSelecionada == Forma.circulo &&
+                  _localPosition.length == 2) {
+                setState(() {
+                  objetos.add(
+                    Figura(_localPosition, Forma.circulo),
                   );
                   _localPosition = [];
                 });
