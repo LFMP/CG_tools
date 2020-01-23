@@ -129,7 +129,9 @@ class _DrawPageState extends State<DrawPage> {
                   );
                   _localPosition = [];
                 });
-              } else if (formaSelecionada == Forma.quadradro &&
+              }
+
+              if (formaSelecionada == Forma.quadradro &&
                   _localPosition.length == 2) {
                 setState(() {
                   objetos.add(
@@ -138,11 +140,12 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition = [];
                 });
               }
+
               if (formaSelecionada == Forma.triangulo &&
                   _localPosition.length == 3) {
                 setState(() {
                   objetos.add(
-                    Figura(_localPosition, Forma.linha),
+                    Figura(_localPosition, Forma.triangulo),
                   );
                   _localPosition = [];
                 });
