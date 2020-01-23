@@ -109,15 +109,11 @@ class _DrawPageState extends State<DrawPage> {
         child: SizedBox.expand(
           child: GestureDetector(
             onTapDown: (TapDownDetails details) {
-              setState(
-                () {
-                  RenderBox object = context.findRenderObject();
-                  Offset coordenadas =
-                      object.localToGlobal(details.localPosition);
-                  _localPosition.add(coordenadas);
-                  _points = List.from(_points)..add(coordenadas);
-                },
-              );
+              RenderBox object = context.findRenderObject();
+              Offset coordenadas = object.localToGlobal(details.localPosition);
+              _localPosition.add(coordenadas);
+              _points = List.from(_points)..add(coordenadas);
+
               if (formaSelecionada == Forma.linha &&
                   _localPosition.length == 2) {
                 setState(() {

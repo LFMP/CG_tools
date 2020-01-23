@@ -5,6 +5,7 @@ class MagicalPaint extends CustomPainter {
   List<Figura> figuras;
   MagicalPaint({this.figuras});
 
+  bool desenhou = false;
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
@@ -15,11 +16,13 @@ class MagicalPaint extends CustomPainter {
     for (int i = 0; i < figuras.length; i++) {
       if (figuras[i] != null && figuras[i].forma == Forma.linha) {
         canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[1], paint);
+        desenhou = true;
       }
     }
   }
 
   @override
-  bool shouldRepaint(MagicalPaint oldDelegate) =>
-      oldDelegate.figuras.length != figuras.length;
+  bool shouldRepaint(MagicalPaint oldDelegate) {
+    return true;
+  }
 }
