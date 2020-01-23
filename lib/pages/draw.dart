@@ -106,8 +106,8 @@ class _DrawPageState extends State<DrawPage> {
         ],
       ),
       body: Container(
-        height: 700,
-        width: 400,
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         margin: EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           border: Border.all(
