@@ -127,11 +127,13 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition = [];
                 });
               }
+              print(objetos);
             },
-            onTapCancel: () => objetos.add(null),
+            onTapUp: (TapUpDetails details) => objetos.add(null),
             child: CustomPaint(
+              isComplex: false,
               painter: MagicalPaint(figuras: objetos),
-              size: Size.infinite,
+              size: Size.fromHeight(700),
             ),
           ),
         ),

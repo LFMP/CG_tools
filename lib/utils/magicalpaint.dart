@@ -20,6 +20,5 @@ class MagicalPaint extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(MagicalPaint oldDelegate) =>
-      oldDelegate.figuras.length != figuras.length;
+  bool shouldRepaint(MagicalPaint oldDelegate) => true;
 }
