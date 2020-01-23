@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-enum opcoes { opcao1, opcao2, opcao3 }
+enum opcoes { undo, redo, opcao3 }
 
 class DrawPage extends StatefulWidget {
   @override
@@ -15,6 +15,7 @@ class DrawPage extends StatefulWidget {
 class _DrawPageState extends State<DrawPage> {
   List<Offset> _points = <Offset>[];
   List<Figura> objetos = <Figura>[];
+  List<Figura> futuro = <Figura>[];
   Forma formaSelecionada = Forma.linha;
   List<Offset> _localPosition = <Offset>[];
 
@@ -29,16 +30,20 @@ class _DrawPageState extends State<DrawPage> {
         actions: <Widget>[
           PopupMenuButton<opcoes>(
             onSelected: (opcoes result) {
-              print(result);
+              if (result == opcoes.undo) {
+                futuro.add(objetos.removeLast());
+              } else if (result == opcoes.redo) {
+                objetos.add(futuro.removeLast());
+              }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<opcoes>>[
               const PopupMenuItem<opcoes>(
-                value: opcoes.opcao1,
-                child: Text('Opcao 1'),
+                value: opcoes.undo,
+                child: Text('Desfazer'),
               ),
               const PopupMenuItem<opcoes>(
-                value: opcoes.opcao2,
-                child: Text('Opcao 2'),
+                value: opcoes.redo,
+                child: Text('Refazer'),
               ),
               const PopupMenuItem<opcoes>(
                 value: opcoes.opcao3,
@@ -120,6 +125,7 @@ class _DrawPageState extends State<DrawPage> {
                     Figura(_localPosition, Forma.quadradro),
                   );
                   _localPosition = [];
+                  futuro.clear();
                 });
               }
 
@@ -130,6 +136,7 @@ class _DrawPageState extends State<DrawPage> {
                     Figura(_localPosition, Forma.triangulo),
                   );
                   _localPosition = [];
+                  futuro.clear();
                 });
               }
 
@@ -140,10 +147,10 @@ class _DrawPageState extends State<DrawPage> {
                     Figura(_localPosition, Forma.circulo),
                   );
                   _localPosition = [];
+                  futuro.clear();
                 });
               }
             },
-            onTapUp: (TapUpDetails details) => objetos.add(null),
             child: CustomPaint(
               isComplex: false,
               painter: MagicalPaint(figuras: objetos),
