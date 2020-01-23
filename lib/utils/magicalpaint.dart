@@ -22,11 +22,15 @@ class MagicalPaint extends CustomPainter {
         canvas.drawRect(
             Rect.fromPoints(figuras[i].pontos[0], figuras[i].pontos[1]), paint);
       }
+      if (figuras[i] != null && figuras[i].forma == Forma.triangulo) {
+        canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[1], paint);
+        canvas.drawLine(figuras[i].pontos[1], figuras[i].pontos[2], paint);
+        canvas.drawLine(figuras[i].pontos[2], figuras[i].pontos[0], paint);
+        desenhou = true;
+      }
     }
   }
 
   @override
-  bool shouldRepaint(MagicalPaint oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(MagicalPaint oldDelegate) => true;
 }

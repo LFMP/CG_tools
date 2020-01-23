@@ -61,30 +61,38 @@ class _DrawPageState extends State<DrawPage> {
         children: [
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: Icon(
-              MdiIcons.minus,
+            child: IconButton(
+              icon: Icon(MdiIcons.minus),
               color: AppStyle.white,
+              onPressed: () => formaSelecionada = Forma.linha,
             ),
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: Icon(
-              MdiIcons.triangleOutline,
+            child: IconButton(
+              icon: Icon(MdiIcons.triangleOutline),
               color: AppStyle.white,
+              onPressed: () => formaSelecionada = Forma.triangulo,
             ),
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: Icon(
-              MdiIcons.squareOutline,
+            child: IconButton(
+              icon: Icon(MdiIcons.squareOutline),
               color: AppStyle.white,
+              onPressed: () => formaSelecionada = Forma.quadradro,
             ),
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: Icon(
-              MdiIcons.circleOutline,
+            child: IconButton(
+              icon: Icon(MdiIcons.circleOutline),
               color: AppStyle.white,
+              onPressed: () => {
+                setState(() {
+                  formaSelecionada = Forma.circulo;
+                }),
+              },
             ),
           ),
           SpeedDialChild(
@@ -130,11 +138,21 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition = [];
                 });
               }
+              if (formaSelecionada == Forma.triangulo &&
+                  _localPosition.length == 3) {
+                setState(() {
+                  objetos.add(
+                    Figura(_localPosition, Forma.linha),
+                  );
+                  _localPosition = [];
+                });
+              }
             },
-            onTapCancel: () => objetos.add(null),
+            onTapUp: (TapUpDetails details) => objetos.add(null),
             child: CustomPaint(
+              isComplex: false,
               painter: MagicalPaint(figuras: objetos),
-              size: Size.infinite,
+              size: Size.fromHeight(700),
             ),
           ),
         ),
