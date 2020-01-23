@@ -18,6 +18,12 @@ class MagicalPaint extends CustomPainter {
         canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[1], paint);
         desenhou = true;
       }
+      if (figuras[i] != null && figuras[i].forma == Forma.triangulo) {
+        canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[1], paint);
+        canvas.drawLine(figuras[i].pontos[1], figuras[i].pontos[2], paint);
+        canvas.drawLine(figuras[i].pontos[2], figuras[i].pontos[0], paint);
+        desenhou = true;
+      }
     }
   }
 
