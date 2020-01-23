@@ -113,12 +113,19 @@ class _DrawPageState extends State<DrawPage> {
               Offset coordenadas = object.localToGlobal(details.localPosition);
               _localPosition.add(coordenadas);
               _points = List.from(_points)..add(coordenadas);
-
               if (formaSelecionada == Forma.linha &&
                   _localPosition.length == 2) {
                 setState(() {
                   objetos.add(
                     Figura(_localPosition, Forma.linha),
+                  );
+                  _localPosition = [];
+                });
+              } else if (formaSelecionada == Forma.quadradro &&
+                  _localPosition.length == 2) {
+                setState(() {
+                  objetos.add(
+                    Figura(_localPosition, Forma.quadradro),
                   );
                   _localPosition = [];
                 });
