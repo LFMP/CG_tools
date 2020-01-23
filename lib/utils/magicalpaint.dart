@@ -10,13 +10,17 @@ class MagicalPaint extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
       ..color = Colors.black
+      ..strokeWidth = 5.0
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 10.0;
+      ..style = PaintingStyle.stroke;
 
     for (int i = 0; i < figuras.length; i++) {
       if (figuras[i] != null && figuras[i].forma == Forma.linha) {
         canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[1], paint);
         desenhou = true;
+      } else if (figuras[i] != null && figuras[i].forma == Forma.quadradro) {
+        canvas.drawRect(
+            Rect.fromPoints(figuras[i].pontos[0], figuras[i].pontos[1]), paint);
       }
       if (figuras[i] != null && figuras[i].forma == Forma.triangulo) {
         canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[1], paint);
