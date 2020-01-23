@@ -51,6 +51,7 @@ class _DrawPageState extends State<DrawPage> {
       floatingActionButton: SpeedDial(
         curve: Curves.bounceIn,
         overlayColor: Colors.black,
+        closeManually: false,
         overlayOpacity: 0.5,
         animatedIcon: AnimatedIcons.menu_arrow,
         animatedIconTheme: IconThemeData(size: 22.0),
@@ -60,48 +61,27 @@ class _DrawPageState extends State<DrawPage> {
         backgroundColor: AppStyle.primary,
         children: [
           SpeedDialChild(
+              backgroundColor: AppStyle.triadic1,
+              child: Icon(MdiIcons.minus),
+              onTap: () => print(formaSelecionada)),
+          SpeedDialChild(
+              backgroundColor: AppStyle.triadic1,
+              child: Icon(MdiIcons.triangleOutline),
+              onTap: () => formaSelecionada = Forma.triangulo),
+          SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(MdiIcons.minus),
-              color: AppStyle.white,
-              onPressed: () => formaSelecionada = Forma.linha,
-            ),
+            child: Icon(MdiIcons.squareOutline),
+            onTap: () => formaSelecionada = Forma.quadradro,
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(MdiIcons.triangleOutline),
-              color: AppStyle.white,
-              onPressed: () => formaSelecionada = Forma.triangulo,
-            ),
+            child: Icon(MdiIcons.circleOutline),
+            onTap: () => formaSelecionada = Forma.circulo,
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(MdiIcons.squareOutline),
-              color: AppStyle.white,
-              onPressed: () => formaSelecionada = Forma.quadradro,
-            ),
-          ),
-          SpeedDialChild(
-            backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(MdiIcons.circleOutline),
-              color: AppStyle.white,
-              onPressed: () => {
-                setState(() {
-                  formaSelecionada = Forma.circulo;
-                }),
-              },
-            ),
-          ),
-          SpeedDialChild(
-            backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(Icons.remove_circle_outline),
-              color: AppStyle.white,
-              onPressed: () => objetos.clear(),
-            ),
+            child: Icon(Icons.remove_circle_outline),
+            onTap: () => objetos.clear(),
           ),
         ],
       ),
