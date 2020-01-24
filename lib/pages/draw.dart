@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-enum opcoes { opcao1, opcao2, opcao3 }
+enum opcoes { undo, redo, opcao3 }
 
 class DrawPage extends StatefulWidget {
   @override
@@ -15,8 +15,10 @@ class DrawPage extends StatefulWidget {
 class _DrawPageState extends State<DrawPage> {
   List<Offset> _points = <Offset>[];
   List<Figura> objetos = <Figura>[];
+  List<Figura> futuro = <Figura>[];
   Forma formaSelecionada = Forma.linha;
   List<Offset> _localPosition = <Offset>[];
+  LocalKey sizedBoxKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +31,24 @@ class _DrawPageState extends State<DrawPage> {
         actions: <Widget>[
           PopupMenuButton<opcoes>(
             onSelected: (opcoes result) {
-              print(result);
+              if (result == opcoes.undo && objetos.isNotEmpty) {
+                setState(() {
+                  futuro.add(objetos.removeLast());
+                });
+              } else if (result == opcoes.redo && futuro.isNotEmpty) {
+                setState(() {
+                  objetos.add(futuro.removeLast());
+                });
+              }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<opcoes>>[
               const PopupMenuItem<opcoes>(
-                value: opcoes.opcao1,
-                child: Text('Opcao 1'),
+                value: opcoes.undo,
+                child: Text('Desfazer'),
               ),
               const PopupMenuItem<opcoes>(
-                value: opcoes.opcao2,
-                child: Text('Opcao 2'),
+                value: opcoes.redo,
+                child: Text('Refazer'),
               ),
               const PopupMenuItem<opcoes>(
                 value: opcoes.opcao3,
@@ -51,6 +61,7 @@ class _DrawPageState extends State<DrawPage> {
       floatingActionButton: SpeedDial(
         curve: Curves.bounceIn,
         overlayColor: Colors.black,
+        closeManually: false,
         overlayOpacity: 0.5,
         animatedIcon: AnimatedIcons.menu_arrow,
         animatedIconTheme: IconThemeData(size: 22.0),
@@ -61,47 +72,28 @@ class _DrawPageState extends State<DrawPage> {
         children: [
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(MdiIcons.minus),
-              color: AppStyle.white,
-              onPressed: () => formaSelecionada = Forma.linha,
-            ),
+            child: Icon(MdiIcons.minus),
+            onTap: () => formaSelecionada = Forma.linha,
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(MdiIcons.triangleOutline),
-              color: AppStyle.white,
-              onPressed: () => formaSelecionada = Forma.triangulo,
-            ),
+            child: Icon(MdiIcons.triangleOutline),
+            onTap: () => formaSelecionada = Forma.triangulo,
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(MdiIcons.squareOutline),
-              color: AppStyle.white,
-              onPressed: () => formaSelecionada = Forma.quadradro,
-            ),
+            child: Icon(MdiIcons.squareOutline),
+            onTap: () => formaSelecionada = Forma.quadradro,
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(MdiIcons.circleOutline),
-              color: AppStyle.white,
-              onPressed: () => {
-                setState(() {
-                  formaSelecionada = Forma.circulo;
-                }),
-              },
-            ),
+            child: Icon(MdiIcons.circleOutline),
+            onTap: () => formaSelecionada = Forma.circulo,
           ),
           SpeedDialChild(
             backgroundColor: AppStyle.triadic1,
-            child: IconButton(
-              icon: Icon(Icons.remove_circle_outline),
-              color: AppStyle.white,
-              onPressed: () => objetos.clear(),
-            ),
+            child: Icon(Icons.remove_circle_outline),
+            onTap: () => objetos.clear(),
           ),
         ],
       ),
@@ -140,6 +132,7 @@ class _DrawPageState extends State<DrawPage> {
                     Figura(_localPosition, Forma.quadradro),
                   );
                   _localPosition = [];
+                  futuro.clear();
                 });
               }
 
@@ -150,14 +143,25 @@ class _DrawPageState extends State<DrawPage> {
                     Figura(_localPosition, Forma.triangulo),
                   );
                   _localPosition = [];
+                  futuro.clear();
+                });
+              }
+
+              if (formaSelecionada == Forma.circulo &&
+                  _localPosition.length == 2) {
+                setState(() {
+                  objetos.add(
+                    Figura(_localPosition, Forma.circulo),
+                  );
+                  _localPosition = [];
+                  futuro.clear();
                 });
               }
             },
-            onTapUp: (TapUpDetails details) => objetos.add(null),
             child: CustomPaint(
               isComplex: false,
               painter: MagicalPaint(figuras: objetos),
-              size: Size.fromHeight(700),
+              size: MediaQuery.of(context).size,
             ),
           ),
         ),
