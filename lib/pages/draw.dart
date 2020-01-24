@@ -107,8 +107,8 @@ class _DrawPageState extends State<DrawPage> {
           ),
         ),
         child: Card(
-          clipBehavior: Clip.antiAlias,
           elevation: 0,
+          clipBehavior: Clip.antiAlias,
           child: GestureDetector(
             onTapDown: (TapDownDetails details) {
               RenderBox object = context.findRenderObject();
