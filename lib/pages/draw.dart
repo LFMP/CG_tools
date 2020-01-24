@@ -132,7 +132,7 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition.length == 2) {
                 setState(() {
                   objetos.add(
-                    Figura(_localPosition, Forma.linha),
+                    Figura(_localPosition, Forma.linha, false),
                   );
                   _localPosition = [];
                 });
@@ -142,7 +142,7 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition.length == 2) {
                 setState(() {
                   objetos.add(
-                    Figura(_localPosition, Forma.quadradro),
+                    Figura(_localPosition, Forma.quadradro, false),
                   );
                   _localPosition = [];
                   futuro.clear();
@@ -153,7 +153,7 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition.length == 3) {
                 setState(() {
                   objetos.add(
-                    Figura(_localPosition, Forma.triangulo),
+                    Figura(_localPosition, Forma.triangulo, false),
                   );
                   _localPosition = [];
                   futuro.clear();
@@ -164,7 +164,7 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition.length == 2) {
                 setState(() {
                   objetos.add(
-                    Figura(_localPosition, Forma.circulo),
+                    Figura(_localPosition, Forma.circulo, false),
                   );
                   _localPosition = [];
                   futuro.clear();

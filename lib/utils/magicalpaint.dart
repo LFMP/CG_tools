@@ -11,12 +11,16 @@ class MagicalPaint extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
-      ..color = Colors.black
       ..strokeWidth = 5.0
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
     for (int i = 0; i < figuras.length; i++) {
+      if (figuras[i].selected) {
+        paint.color = Colors.red;
+      } else {
+        paint.color = Colors.black;
+      }
       if (figuras[i].forma == Forma.linha) {
         canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[1], paint);
       }
