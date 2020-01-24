@@ -19,6 +19,7 @@ class _DrawPageState extends State<DrawPage> {
   Forma formaSelecionada = Forma.linha;
   List<Offset> _localPosition = <Offset>[];
   LocalKey sizedBoxKey = UniqueKey();
+  bool _clearSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +32,18 @@ class _DrawPageState extends State<DrawPage> {
         actions: <Widget>[
           PopupMenuButton<opcoes>(
             onSelected: (opcoes result) {
-              if (result == opcoes.undo && objetos.isNotEmpty) {
-                setState(() {
-                  futuro.add(objetos.removeLast());
-                });
+              if (result == opcoes.undo) {
+                if (_clearSelected) {
+                  setState(() {
+                    objetos.addAll(futuro);
+                    futuro.clear();
+                    _clearSelected = false;
+                  });
+                } else if (objetos.isNotEmpty) {
+                  setState(() {
+                    futuro.add(objetos.removeLast());
+                  });
+                }
               } else if (result == opcoes.redo && futuro.isNotEmpty) {
                 setState(() {
                   objetos.add(futuro.removeLast());
@@ -91,10 +100,15 @@ class _DrawPageState extends State<DrawPage> {
             onTap: () => formaSelecionada = Forma.circulo,
           ),
           SpeedDialChild(
-            backgroundColor: AppStyle.triadic1,
-            child: Icon(Icons.remove_circle_outline),
-            onTap: () => objetos.clear(),
-          ),
+              backgroundColor: AppStyle.triadic1,
+              child: Icon(Icons.remove_circle_outline),
+              onTap: () => {
+                    setState(() {
+                      futuro.addAll(objetos);
+                      objetos.clear();
+                      _clearSelected = true;
+                    })
+                  }),
         ],
       ),
       body: Card(
