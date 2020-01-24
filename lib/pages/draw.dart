@@ -18,6 +18,7 @@ class _DrawPageState extends State<DrawPage> {
   List<Figura> futuro = <Figura>[];
   Forma formaSelecionada = Forma.linha;
   List<Offset> _localPosition = <Offset>[];
+  LocalKey sizedBoxKey = UniqueKey();
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +31,14 @@ class _DrawPageState extends State<DrawPage> {
         actions: <Widget>[
           PopupMenuButton<opcoes>(
             onSelected: (opcoes result) {
-              if (result == opcoes.undo) {
-                futuro.add(objetos.removeLast());
-              } else if (result == opcoes.redo) {
-                objetos.add(futuro.removeLast());
+              if (result == opcoes.undo && objetos.isNotEmpty) {
+                setState(() {
+                  futuro.add(objetos.removeLast());
+                });
+              } else if (result == opcoes.redo && futuro.isNotEmpty) {
+                setState(() {
+                  objetos.add(futuro.removeLast());
+                });
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<opcoes>>[
@@ -102,6 +107,7 @@ class _DrawPageState extends State<DrawPage> {
           ),
         ),
         child: SizedBox.expand(
+          key: sizedBoxKey,
           child: GestureDetector(
             onTapDown: (TapDownDetails details) {
               RenderBox object = context.findRenderObject();
@@ -154,7 +160,7 @@ class _DrawPageState extends State<DrawPage> {
             child: CustomPaint(
               isComplex: false,
               painter: MagicalPaint(figuras: objetos),
-              size: Size.fromHeight(700),
+              size: MediaQuery.of(context).size,
             ),
           ),
         ),
