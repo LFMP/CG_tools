@@ -97,18 +97,17 @@ class _DrawPageState extends State<DrawPage> {
           ),
         ],
       ),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.black,
+      body: Card(
+        elevation: 0,
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black,
+            ),
           ),
-        ),
-        child: Card(
-          elevation: 0,
-          clipBehavior: Clip.antiAlias,
           child: GestureDetector(
             onTapDown: (TapDownDetails details) {
               RenderBox object = context.findRenderObject();
