@@ -114,7 +114,9 @@ class _DrawPageState extends State<DrawPage> {
             color: Colors.black,
           ),
         ),
-        child: SizedBox.expand(
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          elevation: 0,
           child: GestureDetector(
             onTapDown: (TapDownDetails details) {
               RenderBox object = context.findRenderObject();
