@@ -4,6 +4,7 @@ import 'package:cg_tools/utils/magicalpaint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:vibration/vibration.dart';
 
 enum opcoes { undo, redo, clear }
 
@@ -26,7 +27,7 @@ class _DrawPageState extends State<DrawPage> {
   void _selectModalSheet(BuildContext ancestralContext, List<Figura> objetos) {
     objetos.isEmpty
         ? showDialog<void>(
-            context: context,
+            context: ancestralContext,
             builder: (BuildContext context) {
               return AlertDialog(
                 title: Text('Ops!'),
@@ -245,6 +246,9 @@ class _DrawPageState extends State<DrawPage> {
           ),
           child: GestureDetector(
             onTapDown: (TapDownDetails details) {
+              if (Vibration.hasVibrator() != null) {
+                Vibration.vibrate();
+              }
               RenderBox object = context.findRenderObject();
               Offset coordenadas = object.localToGlobal(details.localPosition);
               _localPosition.add(coordenadas);
