@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-enum opcoes { undo, redo, opcao3 }
+enum opcoes { undo, redo, clear }
 
 class DrawPage extends StatefulWidget {
   @override
@@ -20,6 +20,7 @@ class _DrawPageState extends State<DrawPage> {
   List<Offset> _localPosition = <Offset>[];
   LocalKey sizedBoxKey = UniqueKey();
   bool _clearSelected = false;
+  final rotateController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +49,12 @@ class _DrawPageState extends State<DrawPage> {
                 setState(() {
                   objetos.add(futuro.removeLast());
                 });
+              } else if (result == opcoes.clear) {
+                setState(() {
+                  futuro.addAll(objetos);
+                  objetos.clear();
+                  _clearSelected = true;
+                });
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<opcoes>>[
@@ -60,18 +67,75 @@ class _DrawPageState extends State<DrawPage> {
                 child: Text('Refazer'),
               ),
               const PopupMenuItem<opcoes>(
-                value: opcoes.opcao3,
-                child: Text('Opcao 3'),
+                value: opcoes.clear,
+                child: Text('Limpar tela'),
               ),
             ],
           )
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: BottomAppBar(
+        color: AppStyle.primary,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.rotate_90_degrees_ccw),
+              color: AppStyle.white,
+              onPressed: () => print('rotacao 90'),
+            ),
+            IconButton(
+              icon: Icon(Icons.crop_rotate),
+              color: AppStyle.white,
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Digite quantos graus deseja rotacionar'),
+                    content: TextFormField(
+                      keyboardType: TextInputType.number,
+                      controller: rotateController,
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: const Text('Confirmar'),
+                        onPressed: () {
+                          print(rotateController.text);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            IconButton(
+              icon: Icon(MdiIcons.arrowAll),
+              color: AppStyle.white,
+              onPressed: () => print('Translacao'),
+            ),
+            IconButton(
+              icon: Icon(MdiIcons.arrowExpandAll),
+              color: AppStyle.white,
+              onPressed: () => print('Escala'),
+            ),
+            IconButton(
+              icon: Icon(MdiIcons.arrowCollapseAll),
+              color: AppStyle.white,
+              onPressed: () => print('Zoom extend'),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: SpeedDial(
         curve: Curves.bounceIn,
         overlayColor: Colors.black,
         closeManually: false,
+        visible: true,
         overlayOpacity: 0.5,
+        elevation: 8.0,
         animatedIcon: AnimatedIcons.menu_arrow,
         animatedIconTheme: IconThemeData(size: 22.0),
         tooltip: 'Speed Dial',
@@ -99,16 +163,6 @@ class _DrawPageState extends State<DrawPage> {
             child: Icon(MdiIcons.circleOutline),
             onTap: () => formaSelecionada = Forma.circulo,
           ),
-          SpeedDialChild(
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(Icons.remove_circle_outline),
-              onTap: () => {
-                    setState(() {
-                      futuro.addAll(objetos);
-                      objetos.clear();
-                      _clearSelected = true;
-                    })
-                  }),
         ],
       ),
       body: Card(
@@ -153,7 +207,7 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition.length == 3) {
                 setState(() {
                   objetos.add(
-                    Figura(_localPosition, Forma.triangulo, false),
+                    Figura(_localPosition, Forma.triangulo, true),
                   );
                   _localPosition = [];
                   futuro.clear();
