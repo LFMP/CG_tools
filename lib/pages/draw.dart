@@ -21,6 +21,61 @@ class _DrawPageState extends State<DrawPage> {
   LocalKey sizedBoxKey = UniqueKey();
   bool _clearSelected = false;
   final rotateController = TextEditingController();
+  GlobalKey select;
+
+  void _selectModalSheet(BuildContext ancestralContext, List<Figura> objetos) {
+    objetos.isEmpty
+        ? showDialog<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Ops!'),
+                content: Text('Voce ainda nao inseriu elementos na tela'),
+                actions: <Widget>[
+                  FlatButton(
+                    child: const Text('Ok'),
+                    onPressed: () {
+                      print(rotateController.text);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          )
+        : showModalBottomSheet(
+            context: ancestralContext,
+            builder: (ancestralContext) {
+              return ListView.builder(
+                key: select,
+                itemCount: objetos.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    title: Text(
+                      objetos[index].forma.toString(),
+                    ),
+                    subtitle: Text(
+                      objetos[index].pontos.toString(),
+                    ),
+                    trailing: Checkbox(
+                      value: objetos[index].selected,
+                      onChanged: (bool value) => {
+                        setState(() {
+                          objetos[index].selected = value;
+                        }),
+                      },
+                    ),
+                    onTap: () => {
+                      setState(() {
+                        objetos[index].selected = !objetos[index].selected;
+                      }),
+                    },
+                  );
+                },
+              );
+            },
+          );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +86,11 @@ class _DrawPageState extends State<DrawPage> {
           child: Text('CG tools'),
         ),
         actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.select_all),
+            color: AppStyle.white,
+            onPressed: () => _selectModalSheet(context, objetos),
+          ),
           PopupMenuButton<opcoes>(
             onSelected: (opcoes result) {
               if (result == opcoes.undo) {
@@ -99,6 +159,13 @@ class _DrawPageState extends State<DrawPage> {
                       controller: rotateController,
                     ),
                     actions: <Widget>[
+                      FlatButton(
+                        child: const Text('Cancelar'),
+                        onPressed: () {
+                          print(rotateController.text);
+                          Navigator.of(context).pop();
+                        },
+                      ),
                       FlatButton(
                         child: const Text('Confirmar'),
                         onPressed: () {
@@ -207,7 +274,7 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition.length == 3) {
                 setState(() {
                   objetos.add(
-                    Figura(_localPosition, Forma.triangulo, true),
+                    Figura(_localPosition, Forma.triangulo, false),
                   );
                   _localPosition = [];
                   futuro.clear();
