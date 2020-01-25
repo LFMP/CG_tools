@@ -10,7 +10,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:vibration/vibration.dart';
 
-enum opcoes { undo, redo, clear }
+enum opcoes { undo, redo, clear, selectAll }
 
 class DrawPage extends StatefulWidget {
   @override
@@ -18,15 +18,14 @@ class DrawPage extends StatefulWidget {
 }
 
 class _DrawPageState extends State<DrawPage> {
+  final rotateController = TextEditingController();
   List<Offset> _points = <Offset>[];
+  List<Offset> zoomClickArea = <Offset>[];
+  List<Offset> _localPosition = <Offset>[];
   List<Figura> objetos = <Figura>[];
   List<Figura> futuro = <Figura>[];
   Forma formaSelecionada = Forma.linha;
-  List<Offset> _localPosition = <Offset>[];
-  LocalKey sizedBoxKey = UniqueKey();
   bool _clearSelected = false;
-  final rotateController = TextEditingController();
-  GlobalKey select;
 
   void _selectModalSheet(BuildContext ancestralContext, List<Figura> objetos) {
     objetos.isEmpty
@@ -52,77 +51,81 @@ class _DrawPageState extends State<DrawPage> {
             context: ancestralContext,
             builder: (ancestralContext) {
               return BlocBuilder<DrawBloc, DrawStates>(
-                  builder: (context, state) {
-                if (state is ModalLoading) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+                builder: (context, state) {
+                  if (state is ModalLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
 
-                if (state is ModalLoaded) {
-                  return ListView.builder(
-                    key: select,
-                    itemCount: objetos.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        title: Text(
-                          objetos[index].forma.toString(),
-                        ),
-                        subtitle: Text(
-                          objetos[index].pontos.toString(),
-                        ),
-                        trailing: Checkbox(
-                          value: objetos[index].selected,
-                          onChanged: (bool value) => {
+                  if (state is ModalLoaded) {
+                    return ListView.builder(
+                      itemCount: objetos.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          title: Text(
+                            objetos[index].forma.toString(),
+                          ),
+                          subtitle: Text(
+                            objetos[index].pontos.toString(),
+                          ),
+                          trailing: Checkbox(
+                            value: objetos[index].selected,
+                            onChanged: (bool value) => {
+                              setState(() {
+                                objetos[index].selected = value;
+                              }),
+                            },
+                          ),
+                          onTap: () => {
+                            BlocProvider.of<DrawBloc>(context)
+                                .add(ItemModalButtonPressed()),
                             setState(() {
-                              objetos[index].selected = value;
+                              objetos[index].selected =
+                                  !objetos[index].selected;
                             }),
                           },
-                        ),
-                        onTap: () => {
-                          BlocProvider.of<DrawBloc>(context)
-                              .add(ItemModalButtonPressed()),
-                          setState(() {
-                            objetos[index].selected = !objetos[index].selected;
-                          }),
-                        },
-                      );
-                    },
-                  );
-                }
+                        );
+                      },
+                    );
+                  }
 
-                if (state is ItemModalSelected) {
-                  return ListView.builder(
-                    key: select,
-                    itemCount: objetos.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        title: Text(
-                          objetos[index].forma.toString(),
-                        ),
-                        subtitle: Text(
-                          objetos[index].pontos.toString(),
-                        ),
-                        trailing: Checkbox(
-                          value: objetos[index].selected,
-                          onChanged: (bool value) => {
-                            setState(() {
-                              objetos[index].selected = value;
-                            }),
+                  if (state is ItemModalSelected) {
+                    return ListView.builder(
+                      itemCount: objetos.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          title: Text(
+                            objetos[index].forma.toString(),
+                          ),
+                          subtitle: Text(
+                            objetos[index].pontos.toString(),
+                          ),
+                          trailing: Checkbox(
+                            value: objetos[index].selected,
+                            onChanged: (bool value) => {
+                              setState(() {
+                                objetos[index].selected = value;
+                              }),
+                            },
+                          ),
+                          onTap: () => {
+                            BlocProvider.of<DrawBloc>(context)
+                                .add(ItemModalButtonPressed()),
+                            setState(
+                              () {
+                                objetos[index].selected =
+                                    !objetos[index].selected;
+                              },
+                            ),
                           },
-                        ),
-                        onTap: () => {
-                          BlocProvider.of<DrawBloc>(context)
-                              .add(ItemModalButtonPressed()),
-                          setState(() {
-                            objetos[index].selected = !objetos[index].selected;
-                          }),
-                        },
-                      );
-                    },
-                  );
-                }
-              });
+                        );
+                      },
+                    );
+                  }
+                  return null;
+                },
+              );
             },
           );
   }
@@ -169,6 +172,14 @@ class _DrawPageState extends State<DrawPage> {
                   objetos.clear();
                   _clearSelected = true;
                 });
+              } else if (result == opcoes.selectAll) {
+                setState(() {
+                  futuro.clear();
+                  futuro.addAll(objetos);
+                  for (int i = 0; i < objetos.length; i++) {
+                    objetos[i].selected = true;
+                  }
+                });
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<opcoes>>[
@@ -183,6 +194,10 @@ class _DrawPageState extends State<DrawPage> {
               const PopupMenuItem<opcoes>(
                 value: opcoes.clear,
                 child: Text('Limpar tela'),
+              ),
+              const PopupMenuItem<opcoes>(
+                value: opcoes.selectAll,
+                child: Text('Selecionar tudo'),
               ),
             ],
           )
@@ -347,6 +362,14 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition = [];
                   futuro.clear();
                 });
+              }
+
+              if (formaSelecionada == Forma.nenhuma &&
+                  _localPosition.length == 2){
+                    setState(() {
+                      zoomClickArea = _localPosition;
+                      _localPosition = [];
+                    });
               }
             },
             child: CustomPaint(
