@@ -1,7 +1,11 @@
+import 'package:cg_tools/blocs/draw_bloc.dart';
+import 'package:cg_tools/blocs/events/draw_events.dart';
+import 'package:cg_tools/blocs/states/draw_states.dart';
 import 'package:cg_tools/utils/appstyle.dart';
 import 'package:cg_tools/utils/figura.dart';
 import 'package:cg_tools/utils/magicalpaint.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:vibration/vibration.dart';
@@ -47,33 +51,78 @@ class _DrawPageState extends State<DrawPage> {
         : showModalBottomSheet(
             context: ancestralContext,
             builder: (ancestralContext) {
-              return ListView.builder(
-                key: select,
-                itemCount: objetos.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(
-                      objetos[index].forma.toString(),
-                    ),
-                    subtitle: Text(
-                      objetos[index].pontos.toString(),
-                    ),
-                    trailing: Checkbox(
-                      value: objetos[index].selected,
-                      onChanged: (bool value) => {
-                        setState(() {
-                          objetos[index].selected = value;
-                        }),
-                      },
-                    ),
-                    onTap: () => {
-                      setState(() {
-                        objetos[index].selected = !objetos[index].selected;
-                      }),
+              return BlocBuilder<DrawBloc, DrawStates>(
+                  builder: (context, state) {
+                if (state is ModalLoading) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                if (state is ModalLoaded) {
+                  return ListView.builder(
+                    key: select,
+                    itemCount: objetos.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(
+                          objetos[index].forma.toString(),
+                        ),
+                        subtitle: Text(
+                          objetos[index].pontos.toString(),
+                        ),
+                        trailing: Checkbox(
+                          value: objetos[index].selected,
+                          onChanged: (bool value) => {
+                            setState(() {
+                              objetos[index].selected = value;
+                            }),
+                          },
+                        ),
+                        onTap: () => {
+                          BlocProvider.of<DrawBloc>(context)
+                              .add(ItemModalButtonPressed()),
+                          setState(() {
+                            objetos[index].selected = !objetos[index].selected;
+                          }),
+                        },
+                      );
                     },
                   );
-                },
-              );
+                }
+
+                if (state is ItemModalSelected) {
+                  return ListView.builder(
+                    key: select,
+                    itemCount: objetos.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(
+                          objetos[index].forma.toString(),
+                        ),
+                        subtitle: Text(
+                          objetos[index].pontos.toString(),
+                        ),
+                        trailing: Checkbox(
+                          value: objetos[index].selected,
+                          onChanged: (bool value) => {
+                            setState(() {
+                              objetos[index].selected = value;
+                            }),
+                          },
+                        ),
+                        onTap: () => {
+                          BlocProvider.of<DrawBloc>(context)
+                              .add(ItemModalButtonPressed()),
+                          setState(() {
+                            objetos[index].selected = !objetos[index].selected;
+                          }),
+                        },
+                      );
+                    },
+                  );
+                }
+              });
             },
           );
   }
@@ -90,7 +139,11 @@ class _DrawPageState extends State<DrawPage> {
           IconButton(
             icon: Icon(Icons.select_all),
             color: AppStyle.white,
-            onPressed: () => _selectModalSheet(context, objetos),
+            onPressed: () {
+              BlocProvider.of<DrawBloc>(context)
+                  .add(SelectModalButtonPressed());
+              _selectModalSheet(context, objetos);
+            },
           ),
           PopupMenuButton<opcoes>(
             onSelected: (opcoes result) {
