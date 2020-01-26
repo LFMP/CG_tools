@@ -30,7 +30,7 @@ class _DrawPageState extends State<DrawPage> {
   List<Offset> _localPosition = <Offset>[];
   List<Figura> objetos = <Figura>[];
   List<Figura> futuro = <Figura>[];
-  List<double> viewport = <double>[0,0,0,0];
+  List<double> viewport = <double>[0, 0, 0, 0];
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
 
@@ -62,29 +62,36 @@ class _DrawPageState extends State<DrawPage> {
     sY = (yMax - yMin) / (MediaQuery.of(context).size.height);
     if (screenRatio > viewPortRatio) {
       double yMaxNovo = ((xMax - xMin) / screenRatio) + yMin;
-      objetos.forEach(
-        (Figura fig) => {
-          fig.pontos.forEach(
-            (Offset coordinate) => {
-              coordinate = Offset((coordinate.dx * sX) - (sX - xMin),
-                  (-coordinate.dy * sY) - (sY * yMin) - (yMax - yMaxNovo) / 2),
-            },
-          ),
-        },
-      );
+      setState(() {
+        objetos.forEach(
+          (Figura fig) => {
+            fig.pontos.forEach(
+              (Offset coordinate) => {
+                coordinate = Offset(
+                  (coordinate.dx * sX) - (sX - xMin),
+                  (-coordinate.dy * sY) - (sY * yMin) - ((yMax - yMaxNovo) / 2),
+                ),
+              },
+            ),
+          },
+        );
+      });
     } else {
       double xMaxNovo = (screenRatio * (yMax - yMin)) + xMin;
-      objetos.forEach(
-        (Figura fig) => {
-          fig.pontos.forEach(
-            (Offset coordinate) => {
-              coordinate = Offset(
-                  (coordinate.dx * sX) - (sX * xMin) - (xMax - xMaxNovo) / 2,
-                  (-coordinate.dy * sY) - (sY - yMin)),
-            },
-          ),
-        },
-      );
+      setState(() {
+        objetos.forEach(
+          (Figura fig) => {
+            fig.pontos.forEach(
+              (Offset coordinate) => {
+                coordinate = Offset(
+                  (coordinate.dx * sX) - (sX * xMin) - ((xMax - xMaxNovo) / 2),
+                  (-coordinate.dy * sY) - (sY - yMin),
+                ),
+              },
+            ),
+          },
+        );
+      });
     }
   }
 
