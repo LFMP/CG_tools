@@ -146,7 +146,7 @@ class _DrawPageState extends State<DrawPage> {
                   math.Vector3(-seno, cosseno, 0),
                   math.Vector3(
                     seno - (f.pontos[0].dx * cosseno) + f.pontos[0].dx,
-                    -f.pontos[0].dx * seno -
+                    -(f.pontos[0].dx * seno) -
                         (f.pontos[0].dy * cosseno) +
                         f.pontos[0].dy,
                     1,
