@@ -419,10 +419,14 @@ class _DrawPageState extends State<DrawPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppStyle.primary,
-        title: Center(
-          child: Text('CG tools'),
-        ),
+        centerTitle: true,
+        title: Text('CG tools'),
         actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.zoom_in),
+            onPressed: () => print('zooooooooooom'),
+          ),
+
           IconButton(
             icon: Icon(Icons.select_all),
             color: AppStyle.white,
@@ -501,7 +505,7 @@ class _DrawPageState extends State<DrawPage> {
               onPressed: () => _rotate(90),
             ),
             IconButton(
-              icon: Icon(Icons.crop_rotate),
+              icon: Icon(Icons.rotate_right),
               color: AppStyle.white,
               onPressed: () => showDialog<void>(
                 context: context,
@@ -604,7 +608,7 @@ class _DrawPageState extends State<DrawPage> {
               ),
             ),
             IconButton(
-              icon: Icon(MdiIcons.arrowExpandAll),
+              icon: Icon(Icons.crop),
               color: AppStyle.white,
               onPressed: () => showDialog<void>(
                 context: context,
@@ -674,7 +678,7 @@ class _DrawPageState extends State<DrawPage> {
               ),
             ),
             IconButton(
-              icon: Icon(MdiIcons.arrowCollapseAll),
+              icon: Icon(Icons.zoom_out_map),
               color: AppStyle.white,
               onPressed: () => print('Zoom extend'),
             ),
