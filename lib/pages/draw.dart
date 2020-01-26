@@ -137,43 +137,42 @@ class _DrawPageState extends State<DrawPage> {
     final double cosseno = cos(math.radians(degrees));
     final double seno = sin(math.radians(degrees));
     math.Matrix3 resultLine;
-    setState(
-      () {
-        objetos.where((Figura fig) => fig.selected == true).map(
-              (Figura f) => {
-                if (f.forma == Forma.linha)
-                  {
-                    resultLine = math.Matrix3.columns(
-                      math.Vector3(cosseno, seno, 0),
-                      math.Vector3(-seno, cosseno, 0),
-                      math.Vector3(
-                        seno - f.pontos[0].dx * cosseno + f.pontos[0].dx,
-                        -f.pontos[0].dx * seno -
-                            f.pontos[0].dy * cosseno +
-                            f.pontos[0].dy,
-                        1,
-                      ),
-                    ),
-                    resultLine.multiply(
-                      math.Matrix3.columns(
-                        math.Vector3(f.pontos[0].dx, f.pontos[0].dy, 1),
-                        math.Vector3(f.pontos[1].dx, f.pontos[1].dy, 1),
-                        math.Vector3(0, 0, 0),
-                      ),
-                    ),
-                    f.pontos[0] = Offset(
-                      resultLine.getColumn(0)[0],
-                      resultLine.getColumn(0)[1],
-                    ),
-                    f.pontos[1] = Offset(
-                      resultLine.getColumn(1)[0],
-                      resultLine.getColumn(1)[1],
-                    ),
-                  },
+    print(objetos[0].pontos);
+    objetos.where((Figura fig) => fig.selected == true).map(
+          (Figura f) => {
+            if (f.forma == Forma.linha)
+              {
+                resultLine = math.Matrix3.columns(
+                  math.Vector3(cosseno, seno, 0),
+                  math.Vector3(-seno, cosseno, 0),
+                  math.Vector3(
+                    seno - f.pontos[0].dx * cosseno + f.pontos[0].dx,
+                    -f.pontos[0].dx * seno -
+                        f.pontos[0].dy * cosseno +
+                        f.pontos[0].dy,
+                    1,
+                  ),
+                ),
+                resultLine.multiply(
+                  math.Matrix3.columns(
+                    math.Vector3(f.pontos[0].dx, f.pontos[0].dy, 1),
+                    math.Vector3(f.pontos[1].dx, f.pontos[1].dy, 1),
+                    math.Vector3(0, 0, 0),
+                  ),
+                ),
+                f.pontos[0] = Offset(
+                  resultLine.getColumn(0)[0],
+                  resultLine.getColumn(0)[1],
+                ),
+                f.pontos[1] = Offset(
+                  resultLine.getColumn(1)[0],
+                  resultLine.getColumn(1)[1],
+                ),
               },
-            );
-      },
-    );
+            f
+          },
+        );
+      print(objetos[0].pontos);
   }
 
   @override
