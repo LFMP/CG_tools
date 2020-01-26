@@ -240,15 +240,15 @@ class _DrawPageState extends State<DrawPage> {
         );
   }
 
- void _scale(double scale_x, scale_y) {
+ void _scale(double scaleX, double scaleY) {
     math.Matrix3 resultLine;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
             if (f.forma == Forma.linha)
               {
                 resultLine = math.Matrix3.columns(
-                  math.Vector3(scale_x, 0, 0),
-                  math.Vector3(0, scale_y, 0),
+                  math.Vector3(scaleX, 0, 0),
+                  math.Vector3(0, scaleY, 0),
                   math.Vector3(0, 0, 1),
                 ),
                 resultLine.multiply(
