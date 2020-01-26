@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:vector_math/vector_math.dart';
 import 'package:cg_tools/utils/figura.dart';
 import 'package:flutter/material.dart';
 
