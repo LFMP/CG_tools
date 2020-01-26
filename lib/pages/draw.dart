@@ -63,22 +63,26 @@ class _DrawPageState extends State<DrawPage> {
           {
             f.pontos.forEach(
               (Offset coordinate) => {
-                if (coordinate.dx < viewport[0])
-                  {viewport[0] = coordinate.dx}
-                else if (coordinate.dx > viewport[2])
-                  {viewport[2] = coordinate.dx},
-                if (coordinate.dy < viewport[1])
-                  {viewport[1] = coordinate.dy}
-                else if (coordinate.dy > viewport[3])
-                  {viewport[3] = coordinate.dy},
+                if (coordinate.dx < viewport[0]) {viewport[0] = coordinate.dx},
+                if (coordinate.dx > viewport[2]) {viewport[2] = coordinate.dx},
+                if (coordinate.dy < viewport[1]) {viewport[1] = coordinate.dy},
+                if (coordinate.dy > viewport[3]) {viewport[3] = coordinate.dy},
               },
             ),
           },
         if (f.forma == Forma.circulo)
           {
-            delta = pow(f.pontos[0].dx - f.pontos[1].dx, 2) -
-                pow(f.pontos[0].dy - f.pontos[1].dy, 2),
+            delta = pow(f.pontos[1].dx - f.pontos[0].dx, 2) +
+                pow(f.pontos[1].dy - f.pontos[0].dy, 2),
             raio = delta < 0 ? sqrt(-delta) : sqrt(delta),
+            if (f.pontos[0].dx - raio < viewport[0])
+              {viewport[0] = f.pontos[0].dx},
+            if (f.pontos[0].dx + raio > viewport[2])
+              {viewport[2] = f.pontos[0].dx},
+            if (f.pontos[0].dy - raio < viewport[1])
+              {viewport[1] = f.pontos[0].dy},
+            if (f.pontos[0].dy + raio > viewport[3])
+              {viewport[3] = f.pontos[0].dy},
           },
       },
     );
