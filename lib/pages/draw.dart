@@ -140,9 +140,7 @@ class _DrawPageState extends State<DrawPage> {
     math.Matrix4 resultLineSquare;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
-            if (f.forma == Forma.linha ||
-                f.forma == Forma.circulo ||
-                f.forma == Forma.quadradro)
+            if (f.forma == Forma.linha || f.forma == Forma.circulo)
               {
                 resultLine = math.Matrix3.columns(
                   math.Vector3(cosseno, seno, 0),
@@ -211,24 +209,25 @@ class _DrawPageState extends State<DrawPage> {
             if (f.forma == Forma.quadradro)
               {
                 resultLineSquare = math.Matrix4.columns(
-                    math.Vector4(cosseno, seno, 0, 1),
-                    math.Vector4(-seno, cosseno, 0, 1),
-                    math.Vector4(
-                        (f.pontos[0].dy * seno) -
-                            (f.pontos[0].dx * cosseno) +
-                            f.pontos[0].dx,
-                        -(f.pontos[0].dx * seno) -
-                            (f.pontos[0].dy * cosseno) +
-                            f.pontos[0].dy,
-                        1,
-                        1),
-                    math.Vector4(1, 1, 1, 1)),
+                  math.Vector4(cosseno, seno, 0, 0),
+                  math.Vector4(-seno, cosseno, 0, 0),
+                  math.Vector4(
+                      (f.pontos[0].dy * seno) -
+                          (f.pontos[0].dx * cosseno) +
+                          f.pontos[0].dx,
+                      -(f.pontos[0].dx * seno) -
+                          (f.pontos[0].dy * cosseno) +
+                          f.pontos[0].dy,
+                      1,
+                      0),
+                  math.Vector4(0, 0, 0, 0),
+                ),
                 resultLineSquare.multiply(
                   math.Matrix4.columns(
-                    math.Vector4(f.pontos[0].dx, f.pontos[0].dy, 1, 1),
-                    math.Vector4(f.pontos[1].dx, f.pontos[1].dy, 1, 1),
-                    math.Vector4(f.pontos[2].dx, f.pontos[2].dy, 1, 1),
-                    math.Vector4(f.pontos[3].dx, f.pontos[3].dy, 1, 1),
+                    math.Vector4(f.pontos[0].dx, f.pontos[0].dy, 1, 0),
+                    math.Vector4(f.pontos[1].dx, f.pontos[1].dy, 1, 0),
+                    math.Vector4(f.pontos[2].dx, f.pontos[2].dy, 1, 0),
+                    math.Vector4(f.pontos[3].dx, f.pontos[3].dy, 1, 0),
                   ),
                 ),
                 f.pontos[0] = Offset(
@@ -247,7 +246,7 @@ class _DrawPageState extends State<DrawPage> {
                   resultLineSquare.getColumn(3)[0],
                   resultLineSquare.getColumn(3)[1],
                 ),
-              }
+              },
           },
         );
   }
