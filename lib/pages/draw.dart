@@ -63,8 +63,29 @@ class _DrawPageState extends State<DrawPage> {
 
     if (screenRatio > viewPortRatio) {
       double yMaxNovo = ((xMax - xMin) / screenRatio) + yMin;
+      objetos.forEach(
+        (Figura fig) => {
+          fig.pontos.forEach(
+            (Offset coordinate) => {
+              coordinate = Offset((coordinate.dx * sX) - (sX - xMin),
+                  (-coordinate.dy * sY) - (sY * yMin) - (yMax - yMaxNovo) / 2),
+            },
+          ),
+        },
+      );
     } else {
       double xMaxNovo = (screenRatio * (yMax - yMin)) + xMin;
+      objetos.forEach(
+        (Figura fig) => {
+          fig.pontos.forEach(
+            (Offset coordinate) => {
+              coordinate = Offset(
+                  (coordinate.dx * sX) - (sX * xMin) - (xMax - xMaxNovo) / 2,
+                  (-coordinate.dy * sY) - (sY - yMin)),
+            },
+          ),
+        },
+      );
     }
   }
 
