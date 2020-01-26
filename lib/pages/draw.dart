@@ -593,12 +593,13 @@ class _DrawPageState extends State<DrawPage> {
               onPressed: () => showDialog<void>(
                 context: context,
                 builder: (BuildContext context) {
+                  String string;
+                  List<String> splitted;
                   return AlertDialog(
                     title: Text('Informe a operação desejada'),
                     content: TextFormField(
-                      decoration: InputDecoration(
-                        hintText: 'operacao valor1 valor2'
-                      )
+                      decoration:
+                          InputDecoration(hintText: 'operacao valor1 valor2'),
                       keyboardType: TextInputType.text,
                       controller: commandController,
                     ),
@@ -611,24 +612,32 @@ class _DrawPageState extends State<DrawPage> {
                       ),
                       FlatButton(
                         child: const Text('Confirmar'),
-                        onPressed: () {
-                          setState(() {});
-                          var string = commandController.toString(),
-                          var splitted = string.split(" "),
-                          if(splitted[0] == "rotate"){
-                            _rotate(num.parse(splitted[1]).toDouble());
-                            Navigator.of(context).pop();
-                          }else if(splitted[0] == "translate"){
-                            _translate(num.parse(splitted[1).toDouble, num.parse(splitted[2].toDouble));
-                            Navigator.of(context).pop();
-                          }else if(splitted[0] == "scale"){
-                            _scale(num.parse(splitted[1).toDouble, num.parse(splitted[2].toDouble));
-                            Navigator.of(context).pop();
-                          }else{
-                            return AlertDialog(
-                              title: Text('Operacao não reconhecida')
-                            ),
-                          }
+                        onPressed: () => {
+                          string = commandController.text,
+                          splitted = string.split(" "),
+                          if (splitted[0] == "rotate")
+                            {
+                              _rotate(num.parse(splitted[1]).toDouble()),
+                              Navigator.of(context).pop(),
+                            }
+                          else if (splitted[0] == "translate")
+                            {
+                              _translate(num.parse(splitted[1]).toDouble(),
+                                  num.parse(splitted[2]).toDouble()),
+                              Navigator.of(context).pop(),
+                            }
+                          else if (splitted[0] == "scale")
+                            {
+                              _scale(num.parse(splitted[1]).toDouble(),
+                                  num.parse(splitted[2]).toDouble()),
+                              Navigator.of(context).pop(),
+                            }
+                          else
+                            {
+                              AlertDialog(
+                                title: Text('Operacao não reconhecida'),
+                              ),
+                            },
                         },
                       ),
                     ],
