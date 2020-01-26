@@ -137,8 +137,7 @@ class _DrawPageState extends State<DrawPage> {
     final double cosseno = cos(math.radians(degrees));
     final double seno = sin(math.radians(degrees));
     math.Matrix3 resultLine;
-    print(objetos[0].pontos);
-    objetos.where((Figura fig) => fig.selected == true).map(
+    objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
             if (f.forma == Forma.linha)
               {
@@ -168,11 +167,9 @@ class _DrawPageState extends State<DrawPage> {
                   resultLine.getColumn(1)[0],
                   resultLine.getColumn(1)[1],
                 ),
-              },
-            f
+              }
           },
         );
-      print(objetos[0].pontos);
   }
 
   @override
