@@ -108,9 +108,10 @@ class MagicalPaint extends CustomPainter {
       }
       if (figuras[i].forma == Forma.circulo) {
         double delta =
-            pow(figuras[i].pontos[0].dx - figuras[i].pontos[1].dx, 2) -
-                pow(figuras[i].pontos[0].dy - figuras[i].pontos[1].dy, 2);
+            pow(figuras[i].pontos[1].dx - figuras[i].pontos[0].dx, 2) +
+                pow(figuras[i].pontos[1].dy - figuras[i].pontos[0].dy, 2);
         double raio = delta < 0 ? sqrt(-delta) : sqrt(delta);
+
         canvas.drawCircle(figuras[i].pontos[0], raio, paint);
 
         Offset Xmin =
