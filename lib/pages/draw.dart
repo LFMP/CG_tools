@@ -29,8 +29,59 @@ class _DrawPageState extends State<DrawPage> {
   List<Offset> _localPosition = <Offset>[];
   List<Figura> objetos = <Figura>[];
   List<Figura> futuro = <Figura>[];
+  List<double> viewport = <double>[];
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
+
+  void getLimites() {
+    // viewport[0] = Xmin
+    // viewport[1] = Ymin
+    // viewport[2] = Xmax
+    // viewport[3] = Ymax
+    double delta;
+    double raio;
+    if (objetos[0].pontos[0].dx > objetos[0].pontos[1].dx) {
+      viewport[0] = objetos[0].pontos[1].dx;
+      viewport[2] = objetos[0].pontos[0].dx;
+    } else {
+      viewport[2] = objetos[0].pontos[1].dx;
+      viewport[0] = objetos[0].pontos[0].dx;
+    }
+    if (objetos[0].pontos[0].dy > objetos[0].pontos[1].dy) {
+      viewport[1] = objetos[0].pontos[1].dy;
+      viewport[3] = objetos[0].pontos[0].dy;
+    } else {
+      viewport[3] = objetos[0].pontos[1].dy;
+      viewport[1] = objetos[0].pontos[0].dy;
+    }
+    objetos.forEach(
+      (Figura f) => {
+        if (f.forma == Forma.linha ||
+            f.forma == Forma.triangulo ||
+            f.forma == Forma.quadradro)
+          {
+            f.pontos.forEach(
+              (Offset coordinate) => {
+                if (coordinate.dx < viewport[0])
+                  {viewport[0] = coordinate.dx}
+                else if (coordinate.dx > viewport[2])
+                  {viewport[2] = coordinate.dx},
+                if (coordinate.dy < viewport[1])
+                  {viewport[1] = coordinate.dy}
+                else if (coordinate.dy > viewport[3])
+                  {viewport[3] = coordinate.dy},
+              },
+            ),
+          },
+        if (f.forma == Forma.circulo)
+          {
+            delta = pow(f.pontos[0].dx - f.pontos[1].dx, 2) -
+                pow(f.pontos[0].dy - f.pontos[1].dy, 2),
+            raio = delta < 0 ? sqrt(-delta) : sqrt(delta),
+          },
+      },
+    );
+  }
 
   void _selectModalSheet(BuildContext ancestralContext, List<Figura> objetos) {
     objetos.isEmpty
@@ -426,7 +477,6 @@ class _DrawPageState extends State<DrawPage> {
             icon: Icon(Icons.zoom_in),
             onPressed: () => print('zooooooooooom'),
           ),
-
           IconButton(
             icon: Icon(Icons.select_all),
             color: AppStyle.white,
@@ -762,10 +812,8 @@ class _DrawPageState extends State<DrawPage> {
 
               if (formaSelecionada == Forma.quadradro &&
                   _localPosition.length == 2) {
-                Offset p2 =
-                    new Offset(_localPosition[1].dx, _localPosition[0].dy);
-                Offset p3 =
-                    new Offset(_localPosition[0].dx, _localPosition[1].dy);
+                Offset p2 = Offset(_localPosition[1].dx, _localPosition[0].dy);
+                Offset p3 = Offset(_localPosition[0].dx, _localPosition[1].dy);
                 setState(() {
                   _localPosition.add(p2);
                   _localPosition.add(p3);
