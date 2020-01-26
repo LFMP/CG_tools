@@ -135,6 +135,12 @@ class _DrawPageState extends State<DrawPage> {
           );
   }
 
+  void _deleteSelected(){
+    futuro.clear();
+    futuro.addAll(objetos.where((Figura f) => f.selected==true));
+    objetos.removeWhere((Figura f) => f.selected==true);
+  }
+
   void _rotate(double degrees) {
     final double cosseno = cos(math.radians(degrees));
     final double seno = sin(math.radians(degrees));
@@ -414,6 +420,7 @@ class _DrawPageState extends State<DrawPage> {
                 } else if (objetos.isNotEmpty) {
                   setState(() {
                     futuro.add(objetos.removeLast());
+                    _clearSelected = false;
                   });
                 }
               } else if (result == opcoes.redo && futuro.isNotEmpty) {
@@ -682,6 +689,13 @@ class _DrawPageState extends State<DrawPage> {
             backgroundColor: AppStyle.triadic1,
             child: Icon(MdiIcons.circleOutline),
             onTap: () => formaSelecionada = Forma.circulo,
+          ),
+          SpeedDialChild(
+            backgroundColor: AppStyle.triadic1,
+            child: Icon(Icons.delete),
+            onTap: () => {
+              _deleteSelected(),
+            },
           ),
         ],
       ),
