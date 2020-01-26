@@ -259,10 +259,7 @@ class _DrawPageState extends State<DrawPage> {
         );
   }
 
-// Translacao não funciona
   void _translate(double x, double y) {
-    double dx;
-    double dy;
     math.Matrix3 resultLine;
     math.Matrix4 resultLineSquare;
     objetos.where((Figura fig) => fig.selected == true).forEach(
