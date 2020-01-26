@@ -112,6 +112,18 @@ class MagicalPaint extends CustomPainter {
                 pow(figuras[i].pontos[0].dy - figuras[i].pontos[1].dy, 2);
         double raio = delta < 0 ? sqrt(-delta) : sqrt(delta);
         canvas.drawCircle(figuras[i].pontos[0], raio, paint);
+
+        Offset Xmin =
+            new Offset(figuras[i].pontos[0].dx - raio, figuras[i].pontos[0].dy);
+        Offset Xmax =
+            new Offset(figuras[i].pontos[0].dx + raio, figuras[i].pontos[0].dy);
+        Offset Ymin =
+            new Offset(figuras[i].pontos[0].dx, figuras[i].pontos[0].dy - raio);
+        Offset Ymax =
+            new Offset(figuras[i].pontos[0].dx, figuras[i].pontos[0].dy + raio);
+
+        // canvas.drawLine(Xmin, Xmax, paint);
+        // canvas.drawLine(Ymin, Ymax, paint);
       }
     }
   }
