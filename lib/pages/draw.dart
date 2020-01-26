@@ -406,11 +406,10 @@ class _DrawPageState extends State<DrawPage> {
 
   void _scale(double scaleX, double scaleY) {
     math.Matrix3 resultLine;
+    math.Matrix4 resultLineSquare;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
-            if (f.forma == Forma.linha ||
-                f.forma == Forma.circulo ||
-                f.forma == Forma.quadradro)
+            if (f.forma == Forma.linha || f.forma == Forma.circulo)
               {
                 resultLine = math.Matrix3.columns(
                   math.Vector3(scaleX, 0, 0),
@@ -432,6 +431,40 @@ class _DrawPageState extends State<DrawPage> {
                 f.pontos[1] = Offset(
                   resultLine.getColumn(1)[0],
                   resultLine.getColumn(1)[1],
+                ),
+              },
+            if (f.forma == Forma.quadradro)
+              {
+                resultLineSquare = math.Matrix4.columns(
+                  math.Vector4(scaleX, 0, 0, 0),
+                  math.Vector4(0, scaleY, 0, 0),
+                  math.Vector4((f.pontos[0].dx - (f.pontos[0].dx * scaleX)),
+                      (f.pontos[0].dy - (f.pontos[0].dy * scaleY)), 1, 0),
+                  math.Vector4(0, 0, 0, 0),
+                ),
+                resultLineSquare.multiply(
+                  math.Matrix4.columns(
+                    math.Vector4(f.pontos[0].dx, f.pontos[0].dy, 1, 0),
+                    math.Vector4(f.pontos[1].dx, f.pontos[1].dy, 1, 0),
+                    math.Vector4(0, 0, 0, 0),
+                    math.Vector4(0, 0, 0, 0),
+                  ),
+                ),
+                f.pontos[0] = Offset(
+                  resultLineSquare.getColumn(0)[0],
+                  resultLineSquare.getColumn(0)[1],
+                ),
+                f.pontos[1] = Offset(
+                  resultLineSquare.getColumn(1)[0],
+                  resultLineSquare.getColumn(1)[1],
+                ),
+                f.pontos[2] = Offset(
+                  resultLineSquare.getColumn(1)[0],
+                  resultLineSquare.getColumn(0)[1],
+                ),
+                f.pontos[3] = Offset(
+                  resultLineSquare.getColumn(0)[0],
+                  resultLineSquare.getColumn(1)[1],
                 ),
               },
             if (f.forma == Forma.triangulo)
