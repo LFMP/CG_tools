@@ -253,7 +253,7 @@ class _DrawPageState extends State<DrawPage> {
         );
   }
 
-//Escala e Transição não testadas
+// Transição não funciona
   void _translate(double x, double y) {
     double dx;
     double dy;
@@ -503,7 +503,73 @@ class _DrawPageState extends State<DrawPage> {
             IconButton(
               icon: Icon(MdiIcons.arrowAll),
               color: AppStyle.white,
-              onPressed: () => print('Translacao'),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Digite o ponto para Translacao'),
+                    content: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Container(
+                                width: 80,
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: 'X',
+                                    alignLabelWithHint: true,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  controller: scaleXController,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Container(
+                                width: 80,
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: 'Y',
+                                    alignLabelWithHint: true,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  controller: scaleYController,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: const Text('Cancelar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      FlatButton(
+                        child: const Text('Confirmar'),
+                        onPressed: () {
+                          _translate(
+                              num.parse(scaleXController.text).toDouble(),
+                              num.parse(scaleYController.text).toDouble());
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
             IconButton(
               icon: Icon(MdiIcons.arrowExpandAll),
