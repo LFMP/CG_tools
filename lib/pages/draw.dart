@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cg_tools/blocs/draw_bloc.dart';
 import 'package:cg_tools/blocs/events/draw_events.dart';
 import 'package:cg_tools/blocs/states/draw_states.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:vector_math/vector_math_64.dart' as math;
 import 'package:vibration/vibration.dart';
 
 enum opcoes { undo, redo, clear, selectAll }
@@ -130,6 +133,49 @@ class _DrawPageState extends State<DrawPage> {
           );
   }
 
+  void _rotate(double degrees) {
+    final double cosseno = cos(math.radians(degrees));
+    final double seno = sin(math.radians(degrees));
+    math.Matrix3 resultLine;
+    setState(
+      () {
+        objetos.where((Figura fig) => fig.selected == true).map(
+              (Figura f) => {
+                if (f.forma == Forma.linha)
+                  {
+                    resultLine = math.Matrix3.columns(
+                      math.Vector3(cosseno, seno, 0),
+                      math.Vector3(-seno, cosseno, 0),
+                      math.Vector3(
+                        seno - f.pontos[0].dx * cosseno + f.pontos[0].dx,
+                        -f.pontos[0].dx * seno -
+                            f.pontos[0].dy * cosseno +
+                            f.pontos[0].dy,
+                        1,
+                      ),
+                    ),
+                    resultLine.multiply(
+                      math.Matrix3.columns(
+                        math.Vector3(f.pontos[0].dx, f.pontos[0].dy, 1),
+                        math.Vector3(f.pontos[1].dx, f.pontos[1].dy, 1),
+                        math.Vector3(0, 0, 0),
+                      ),
+                    ),
+                    f.pontos[0] = Offset(
+                      resultLine.getColumn(0)[0],
+                      resultLine.getColumn(0)[1],
+                    ),
+                    f.pontos[1] = Offset(
+                      resultLine.getColumn(1)[0],
+                      resultLine.getColumn(1)[1],
+                    ),
+                  },
+              },
+            );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,7 +259,7 @@ class _DrawPageState extends State<DrawPage> {
             IconButton(
               icon: Icon(Icons.rotate_90_degrees_ccw),
               color: AppStyle.white,
-              onPressed: () => print('rotacao 90'),
+              onPressed: () => _rotate(90),
             ),
             IconButton(
               icon: Icon(Icons.crop_rotate),
@@ -365,11 +411,11 @@ class _DrawPageState extends State<DrawPage> {
               }
 
               if (formaSelecionada == Forma.nenhuma &&
-                  _localPosition.length == 2){
-                    setState(() {
-                      zoomClickArea = _localPosition;
-                      _localPosition = [];
-                    });
+                  _localPosition.length == 2) {
+                setState(() {
+                  zoomClickArea = _localPosition;
+                  _localPosition = [];
+                });
               }
             },
             child: CustomPaint(
