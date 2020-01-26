@@ -139,7 +139,7 @@ class _DrawPageState extends State<DrawPage> {
     math.Matrix3 resultLine;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
-            if (f.forma == Forma.linha)
+            if (f.forma == Forma.linha || f.forma == Forma.circulo)
               {
                 resultLine = math.Matrix3.columns(
                   math.Vector3(cosseno, seno, 0),
@@ -170,7 +170,7 @@ class _DrawPageState extends State<DrawPage> {
                   resultLine.getColumn(1)[1],
                 ),
               },
-              if (f.forma == Forma.circulo)
+            if (f.forma == Forma.triangulo)
               {
                 resultLine = math.Matrix3.columns(
                   math.Vector3(cosseno, seno, 0),
@@ -189,7 +189,7 @@ class _DrawPageState extends State<DrawPage> {
                   math.Matrix3.columns(
                     math.Vector3(f.pontos[0].dx, f.pontos[0].dy, 1),
                     math.Vector3(f.pontos[1].dx, f.pontos[1].dy, 1),
-                    math.Vector3(0, 0, 0),
+                    math.Vector3(f.pontos[2].dx, f.pontos[2].dy, 1),
                   ),
                 ),
                 f.pontos[0] = Offset(
@@ -199,6 +199,10 @@ class _DrawPageState extends State<DrawPage> {
                 f.pontos[1] = Offset(
                   resultLine.getColumn(1)[0],
                   resultLine.getColumn(1)[1],
+                ),
+                f.pontos[1] = Offset(
+                  resultLine.getColumn(2)[0],
+                  resultLine.getColumn(2)[1],
                 ),
               }
           },
