@@ -21,6 +21,7 @@ class DrawPage extends StatefulWidget {
 }
 
 class _DrawPageState extends State<DrawPage> {
+  final commandController = TextEditingController();
   final rotateController = TextEditingController();
   final scaleXController = TextEditingController();
   final scaleYController = TextEditingController();
@@ -579,6 +580,55 @@ class _DrawPageState extends State<DrawPage> {
                           setState(() {});
                           _rotate(num.parse(rotateController.text).toDouble());
                           Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.chevron_right),
+              color: AppStyle.white,
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Informe a operação desejada'),
+                    content: TextFormField(
+                      decoration: InputDecoration(
+                        hintText: 'operacao valor1 valor2'
+                      )
+                      keyboardType: TextInputType.text,
+                      controller: commandController,
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: const Text('Cancelar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      FlatButton(
+                        child: const Text('Confirmar'),
+                        onPressed: () {
+                          setState(() {});
+                          var string = commandController.toString(),
+                          var splitted = string.split(" "),
+                          if(splitted[0] == "rotate"){
+                            _rotate(num.parse(splitted[1]).toDouble());
+                            Navigator.of(context).pop();
+                          }else if(splitted[0] == "translate"){
+                            _translate(num.parse(splitted[1).toDouble, num.parse(splitted[2].toDouble));
+                            Navigator.of(context).pop();
+                          }else if(splitted[0] == "scale"){
+                            _scale(num.parse(splitted[1).toDouble, num.parse(splitted[2].toDouble));
+                            Navigator.of(context).pop();
+                          }else{
+                            return AlertDialog(
+                              title: Text('Operacao não reconhecida')
+                            ),
+                          }
                         },
                       ),
                     ],
