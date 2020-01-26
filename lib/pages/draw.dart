@@ -65,14 +65,15 @@ class _DrawPageState extends State<DrawPage> {
       setState(() {
         objetos.forEach(
           (Figura fig) => {
-            fig.pontos.forEach(
-              (Offset coordinate) => {
-                coordinate = Offset(
-                  (coordinate.dx * sX) - (sX - xMin),
-                  (-coordinate.dy * sY) - (sY * yMin) - ((yMax - yMaxNovo) / 2),
+            for (int i = 0; i < fig.pontos.length; i++)
+              {
+                fig.pontos[i] = Offset(
+                  (fig.pontos[i].dx * sX) - (sX * xMin),
+                  (-fig.pontos[i].dy * sY) -
+                      (sY * yMin) -
+                      ((yMax - yMaxNovo) / 2),
                 ),
               },
-            ),
           },
         );
       });
@@ -81,14 +82,15 @@ class _DrawPageState extends State<DrawPage> {
       setState(() {
         objetos.forEach(
           (Figura fig) => {
-            fig.pontos.forEach(
-              (Offset coordinate) => {
-                coordinate = Offset(
-                  (coordinate.dx * sX) - (sX * xMin) - ((xMax - xMaxNovo) / 2),
-                  (-coordinate.dy * sY) - (sY - yMin),
+            for (int i = 0; i < fig.pontos.length; i++)
+              {
+                fig.pontos[i] = Offset(
+                  (fig.pontos[i].dx * sX) -
+                      (sX * xMin) -
+                      ((xMax - xMaxNovo) / 2),
+                  (-fig.pontos[i].dy * sY) - (sY * yMin),
                 ),
               },
-            ),
           },
         );
       });
