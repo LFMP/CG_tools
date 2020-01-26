@@ -139,7 +139,7 @@ class _DrawPageState extends State<DrawPage> {
     math.Matrix3 resultLine;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
-            if (f.forma == Forma.linha || f.forma == Forma.circulo)
+            if (f.forma == Forma.linha || f.forma == Forma.circulo || f.forma == Forma.quadradro)
               {
                 resultLine = math.Matrix3.columns(
                   math.Vector3(cosseno, seno, 0),
@@ -200,11 +200,12 @@ class _DrawPageState extends State<DrawPage> {
                   resultLine.getColumn(1)[0],
                   resultLine.getColumn(1)[1],
                 ),
-                f.pontos[1] = Offset(
+                f.pontos[2] = Offset(
                   resultLine.getColumn(2)[0],
                   resultLine.getColumn(2)[1],
                 ),
               }
+              if (f.forma == Forma.)
           },
         );
   }
@@ -213,12 +214,14 @@ class _DrawPageState extends State<DrawPage> {
     math.Matrix3 resultLine;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
-            if (f.forma == Forma.linha)
+            if (f.forma == Forma.linha || f.forma == Forma.circulo || f.forma == Forma.quadradro)
               {
+                dx = math.max(f.pontos[0].dx, f.pontos[1].dx);
+                dy = math.max(f.pontos[0].dy, f.pontos[1].dy);
                 resultLine = math.Matrix3.columns(
-                  math.Vector3(1, 0, (f.pontos[1].dx - x)),
-                  math.Vector3(0, 1, (f.pontos[1].dy - y)),
-                  math.Vector3(0, 0, 1),
+                  math.Vector3(1, 0, 0),
+                  math.Vector3(0, 1, 0),
+                  math.Vector3((dx - x), (dy - y), 1),
                 ),
                 resultLine.multiply(
                   math.Matrix3.columns(
@@ -234,6 +237,35 @@ class _DrawPageState extends State<DrawPage> {
                 f.pontos[1] = Offset(
                   resultLine.getColumn(1)[0],
                   resultLine.getColumn(1)[1],
+                ),
+              },
+              if (f.forma == Forma.triangulo)
+              {
+                dx = math.max(f.pontos[0].dx, f.pontos[1].dx, f.pontos[2].dx);
+                dy = math.max(f.pontos[0].dy, f.pontos[1].dy, f.pontos[2].dy);
+                resultLine = math.Matrix3.columns(
+                  math.Vector3(1, 0, 0),
+                  math.Vector3(0, 1, 0),
+                  math.Vector3((dx - x), (dy - y), 1),
+                ),
+                resultLine.multiply(
+                  math.Matrix3.columns(
+                    math.Vector3(f.pontos[0].dx, f.pontos[0].dy, 1),
+                    math.Vector3(f.pontos[1].dx, f.pontos[1].dy, 1),
+                    math.Vector3(f.pontos[2].dx, f.pontos[2].dy, 1),
+                  ),
+                ),
+                f.pontos[0] = Offset(
+                  resultLine.getColumn(0)[0],
+                  resultLine.getColumn(0)[1],
+                ),
+                f.pontos[1] = Offset(
+                  resultLine.getColumn(1)[0],
+                  resultLine.getColumn(1)[1],
+                ),
+                f.pontos[2] = Offset(
+                  resultLine.getColumn(2)[0],
+                  resultLine.getColumn(2)[1],
                 ),
               }
           },
@@ -244,12 +276,12 @@ class _DrawPageState extends State<DrawPage> {
     math.Matrix3 resultLine;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
-            if (f.forma == Forma.linha)
+            if (f.forma == Forma.linha || f.forma == Forma.circulo || f.forma == Forma.quadradro)
               {
-                resultLine = math.Matrix3.columns(
+               resultLine = math.Matrix3.columns(
                   math.Vector3(scaleX, 0, 0),
                   math.Vector3(0, scaleY, 0),
-                  math.Vector3(0, 0, 1),
+                  math.Vector3((f.pontos[0].dx - (f.pontos[0].dx*scaleX)), (f.pontos[0].dy - (f.pontos[0].dy*scaleY)), 1),
                 ),
                 resultLine.multiply(
                   math.Matrix3.columns(
@@ -265,6 +297,33 @@ class _DrawPageState extends State<DrawPage> {
                 f.pontos[1] = Offset(
                   resultLine.getColumn(1)[0],
                   resultLine.getColumn(1)[1],
+                ),
+              },
+              if (f.forma == Forma.triangulo)
+              {
+                resultLine = math.Matrix3.columns(
+                  math.Vector3(scaleX, 0, 0),
+                  math.Vector3(0, scaleY, 0),
+                  math.Vector3((f.pontos[0].dx - (f.pontos[0].dx*scaleX)), (f.pontos[0].dy - (f.pontos[0].dy*scaleY)), 1),
+                ),
+                resultLine.multiply(
+                  math.Matrix3.columns(
+                    math.Vector3(f.pontos[0].dx, f.pontos[0].dy, 1),
+                    math.Vector3(f.pontos[1].dx, f.pontos[1].dy, 1),
+                    math.Vector3(f.pontos[2].dx, f.pontos[2].dy, 1),
+                  ),
+                ),
+                f.pontos[0] = Offset(
+                  resultLine.getColumn(0)[0],
+                  resultLine.getColumn(0)[1],
+                ),
+                f.pontos[1] = Offset(
+                  resultLine.getColumn(1)[0],
+                  resultLine.getColumn(1)[1],
+                ),
+                f.pontos[2] = Offset(
+                  resultLine.getColumn(2)[0],
+                  resultLine.getColumn(2)[1],
                 ),
               }
           },
