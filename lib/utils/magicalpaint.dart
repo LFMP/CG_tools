@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:vector_math/vector_math.dart';
 import 'package:cg_tools/utils/figura.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +34,8 @@ class MagicalPaint extends CustomPainter {
         canvas.drawLine(figuras[i].pontos[2], figuras[i].pontos[0], paint);
       }
       if (figuras[i].forma == Forma.circulo) {
-        double delta = pow(figuras[i].pontos[0].dx - figuras[i].pontos[1].dx, 2) -
+        double delta =
+            pow(figuras[i].pontos[0].dx - figuras[i].pontos[1].dx, 2) -
                 pow(figuras[i].pontos[0].dy - figuras[i].pontos[1].dy, 2);
         double raio = delta < 0 ? sqrt(-delta) : sqrt(delta);
         canvas.drawCircle(figuras[i].pontos[0], raio, paint);
