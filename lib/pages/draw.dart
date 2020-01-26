@@ -162,12 +162,8 @@ class _DrawPageState extends State<DrawPage> {
                   ),
                 ),
                 f.pontos[0] = Offset(
-                  resultLine.getColumn(0)[0] > 0
-                      ? resultLine.getColumn(0)[0]
-                      : -resultLine.getColumn(0)[0],
-                  resultLine.getColumn(0)[1] > 0
-                      ? resultLine.getColumn(0)[1]
-                      : -resultLine.getColumn(0)[1],
+                  resultLine.getColumn(0)[0],
+                  resultLine.getColumn(0)[1],
                 ),
                 f.pontos[1] = Offset(
                   resultLine.getColumn(1)[0],
