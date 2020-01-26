@@ -209,7 +209,7 @@ class _DrawPageState extends State<DrawPage> {
           },
         );
   }
-
+//Escala e Transição não testadas
    void _translate(double x, double y) {
     math.Matrix3 resultLine;
     objetos.where((Figura fig) => fig.selected == true).forEach(
