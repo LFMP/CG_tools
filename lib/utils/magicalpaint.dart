@@ -24,8 +24,12 @@ class MagicalPaint extends CustomPainter {
       }
 
       if (figuras[i].forma == Forma.quadradro) {
-        canvas.drawRect(
-            Rect.fromPoints(figuras[i].pontos[0], figuras[i].pontos[1]), paint);
+        // canvas.drawRect(
+        //     Rect.fromPoints(figuras[i].pontos[0], figuras[i].pontos[1]), paint);
+        canvas.drawLine(figuras[i].pontos[0], figuras[i].pontos[2], paint);
+        canvas.drawLine(figuras[i].pontos[2], figuras[i].pontos[1], paint);
+        canvas.drawLine(figuras[i].pontos[1], figuras[i].pontos[3], paint);
+        canvas.drawLine(figuras[i].pontos[3], figuras[i].pontos[0], paint);
       }
 
       if (figuras[i].forma == Forma.triangulo) {

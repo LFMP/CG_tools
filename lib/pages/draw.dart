@@ -137,6 +137,7 @@ class _DrawPageState extends State<DrawPage> {
     final double cosseno = cos(math.radians(degrees));
     final double seno = sin(math.radians(degrees));
     math.Matrix3 resultLine;
+    math.Matrix4 resultLineSquare;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
             if (f.forma == Forma.linha || f.forma == Forma.circulo)
@@ -200,16 +201,56 @@ class _DrawPageState extends State<DrawPage> {
                   resultLine.getColumn(1)[0],
                   resultLine.getColumn(1)[1],
                 ),
-                f.pontos[1] = Offset(
+                f.pontos[2] = Offset(
                   resultLine.getColumn(2)[0],
                   resultLine.getColumn(2)[1],
+                ),
+              },
+            if (f.forma == Forma.quadradro)
+              {
+                resultLineSquare = math.Matrix4.columns(
+                    math.Vector4(cosseno, seno, 0, 1),
+                    math.Vector4(-seno, cosseno, 0, 1),
+                    math.Vector4(
+                        (f.pontos[0].dy * seno) -
+                            (f.pontos[0].dx * cosseno) +
+                            f.pontos[0].dx,
+                        -(f.pontos[0].dx * seno) -
+                            (f.pontos[0].dy * cosseno) +
+                            f.pontos[0].dy,
+                        1,
+                        1),
+                    math.Vector4(1, 1, 1, 1)),
+                resultLineSquare.multiply(
+                  math.Matrix4.columns(
+                    math.Vector4(f.pontos[0].dx, f.pontos[0].dy, 1, 1),
+                    math.Vector4(f.pontos[1].dx, f.pontos[1].dy, 1, 1),
+                    math.Vector4(f.pontos[2].dx, f.pontos[2].dy, 1, 1),
+                    math.Vector4(f.pontos[3].dx, f.pontos[3].dy, 1, 1),
+                  ),
+                ),
+                f.pontos[0] = Offset(
+                  resultLineSquare.getColumn(0)[0],
+                  resultLineSquare.getColumn(0)[1],
+                ),
+                f.pontos[1] = Offset(
+                  resultLineSquare.getColumn(1)[0],
+                  resultLineSquare.getColumn(1)[1],
+                ),
+                f.pontos[2] = Offset(
+                  resultLineSquare.getColumn(2)[0],
+                  resultLineSquare.getColumn(2)[1],
+                ),
+                f.pontos[3] = Offset(
+                  resultLineSquare.getColumn(3)[0],
+                  resultLineSquare.getColumn(3)[1],
                 ),
               }
           },
         );
   }
 
-   void _translate(double x, double y) {
+  void _translate(double x, double y) {
     math.Matrix3 resultLine;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
@@ -240,7 +281,7 @@ class _DrawPageState extends State<DrawPage> {
         );
   }
 
- void _scale(double scaleX, double scaleY) {
+  void _scale(double scaleX, double scaleY) {
     math.Matrix3 resultLine;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
@@ -270,7 +311,6 @@ class _DrawPageState extends State<DrawPage> {
           },
         );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -373,14 +413,14 @@ class _DrawPageState extends State<DrawPage> {
                       FlatButton(
                         child: const Text('Cancelar'),
                         onPressed: () {
-                          print(rotateController.text);
                           Navigator.of(context).pop();
                         },
                       ),
                       FlatButton(
                         child: const Text('Confirmar'),
                         onPressed: () {
-                          print(rotateController.text);
+                          _rotate(num.parse(rotateController.text).toDouble());
+                          setState(() {});
                           Navigator.of(context).pop();
                         },
                       ),
@@ -457,7 +497,9 @@ class _DrawPageState extends State<DrawPage> {
           child: GestureDetector(
             onTapDown: (TapDownDetails details) {
               if (Vibration.hasVibrator() != null) {
-                Vibration.vibrate();
+                Vibration.vibrate(
+                  duration: 70,
+                );
               }
               RenderBox object = context.findRenderObject();
               Offset coordenadas = object.localToGlobal(details.localPosition);
@@ -475,7 +517,13 @@ class _DrawPageState extends State<DrawPage> {
 
               if (formaSelecionada == Forma.quadradro &&
                   _localPosition.length == 2) {
+                Offset p2 =
+                    new Offset(_localPosition[1].dx, _localPosition[0].dy);
+                Offset p3 =
+                    new Offset(_localPosition[0].dx, _localPosition[1].dy);
                 setState(() {
+                  _localPosition.add(p2);
+                  _localPosition.add(p3);
                   objetos.add(
                     Figura(_localPosition, Forma.quadradro, false),
                   );
