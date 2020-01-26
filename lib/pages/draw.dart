@@ -30,7 +30,7 @@ class _DrawPageState extends State<DrawPage> {
   List<Offset> _localPosition = <Offset>[];
   List<Figura> objetos = <Figura>[];
   List<Figura> futuro = <Figura>[];
-  List<double> viewport = <double>[];
+  List<double> viewport = <double>[0,0,0,0];
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
 
@@ -60,7 +60,6 @@ class _DrawPageState extends State<DrawPage> {
 
     sX = (xMax - xMin) / (MediaQuery.of(context).size.width);
     sY = (yMax - yMin) / (MediaQuery.of(context).size.height);
-
     if (screenRatio > viewPortRatio) {
       double yMaxNovo = ((xMax - xMin) / screenRatio) + yMin;
       objetos.forEach(
@@ -882,9 +881,7 @@ class _DrawPageState extends State<DrawPage> {
                 icon: Icon(Icons.zoom_out_map),
                 color: AppStyle.white,
                 onPressed: () {
-                  RenderBox screen = context.findRenderObject();
-                  Offset size = screen.size.bottomRight(Offset(0, 0));
-                  print(size);
+                  zoom();
                 }),
           ],
         ),
