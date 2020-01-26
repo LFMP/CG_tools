@@ -34,29 +34,32 @@ class _DrawPageState extends State<DrawPage> {
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
 
-  void zoomNormal(Offset screen, Offset p1, Offset p2) {
-    double xMin = p1.dx;
-    double yMin = p1.dy;
-    double xMax = p2.dx;
-    double yMax = p2.dy;
+  void zoom({Offset p1, Offset p2}) {
+    double xMin;
+    double yMin;
+    double xMax;
+    double yMax;
     double sX;
     double sY;
-
-    if (p1.dx > p2.dx) {
-      xMin = p2.dx;
-      xMax = p1.dx;
+    if (p1 == null || p2 == null) {
+      getLimites();
+      xMin = viewport[0];
+      yMin = viewport[1];
+      xMax = viewport[2];
+      yMax = viewport[3];
+    } else {
+      xMin = min(p1.dx, p2.dx);
+      yMin = min(p1.dy, p2.dy);
+      xMax = max(p1.dx, p2.dx);
+      yMax = max(p1.dy, p2.dy);
     }
 
-    if (p1.dy > p2.dy) {
-      yMin = p2.dy;
-      yMax = p1.dy;
-    }
-
-    double screenRatio = screen.dx / screen.dy;
+    double screenRatio =
+        MediaQuery.of(context).size.width / MediaQuery.of(context).size.height;
     double viewPortRatio = (xMax - xMin) / (yMax - yMin);
 
-    sX = (xMax - xMin) / (screen.dx);
-    sY = (yMax - yMin) / (screen.dy);
+    sX = (xMax - xMin) / (MediaQuery.of(context).size.width);
+    sY = (yMax - yMin) / (MediaQuery.of(context).size.height);
 
     if (screenRatio > viewPortRatio) {
       double yMaxNovo = ((xMax - xMin) / screenRatio) + yMin;
