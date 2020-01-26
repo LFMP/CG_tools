@@ -135,10 +135,10 @@ class _DrawPageState extends State<DrawPage> {
           );
   }
 
-  void _deleteSelected(){
+  void _deleteSelected() {
     futuro.clear();
-    futuro.addAll(objetos.where((Figura f) => f.selected==true));
-    objetos.removeWhere((Figura f) => f.selected==true);
+    futuro.addAll(objetos.where((Figura f) => f.selected == true));
+    objetos.removeWhere((Figura f) => f.selected == true);
   }
 
   void _rotate(double degrees) {
@@ -259,7 +259,7 @@ class _DrawPageState extends State<DrawPage> {
         );
   }
 
-// Transição não funciona
+// Translacao não funciona
   void _translate(double x, double y) {
     double dx;
     double dy;
@@ -270,12 +270,10 @@ class _DrawPageState extends State<DrawPage> {
                 f.forma == Forma.circulo ||
                 f.forma == Forma.quadradro)
               {
-                dx = max(f.pontos[0].dx, f.pontos[1].dx),
-                dy = max(f.pontos[0].dy, f.pontos[1].dy),
                 resultLine = math.Matrix3.columns(
                   math.Vector3(1, 0, 0),
                   math.Vector3(0, 1, 0),
-                  math.Vector3((dx - x), (dy - y), 1),
+                  math.Vector3((x - f.pontos[0].dx), (y - f.pontos[0].dy), 1),
                 ),
                 resultLine.multiply(
                   math.Matrix3.columns(
