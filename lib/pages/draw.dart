@@ -34,6 +34,37 @@ class _DrawPageState extends State<DrawPage> {
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
 
+  void zoomNormal(Offset screen, Offset p1, Offset p2) {
+    double xMin = p1.dx;
+    double yMin = p1.dy;
+    double xMax = p2.dx;
+    double yMax = p2.dy;
+    double sX;
+    double sY;
+
+    if (p1.dx > p2.dx) {
+      xMin = p2.dx;
+      xMax = p1.dx;
+    }
+
+    if (p1.dy > p2.dy) {
+      yMin = p2.dy;
+      yMax = p1.dy;
+    }
+
+    double screenRatio = screen.dx / screen.dy;
+    double viewPortRatio = (xMax - xMin) / (yMax - yMin);
+
+    sX = (xMax - xMin) / (screen.dx);
+    sY = (yMax - yMin) / (screen.dy);
+
+    if (screenRatio > viewPortRatio) {
+      double yMaxNovo = ((xMax - xMin) / screenRatio) + yMin;
+    } else {
+      double xMaxNovo = (screenRatio * (yMax - yMin)) + xMin;
+    }
+  }
+
   void getLimites() {
     // viewport[0] = Xmin
     // viewport[1] = Ymin
@@ -824,10 +855,13 @@ class _DrawPageState extends State<DrawPage> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.zoom_out_map),
-              color: AppStyle.white,
-              onPressed: () => print('Zoom extend'),
-            ),
+                icon: Icon(Icons.zoom_out_map),
+                color: AppStyle.white,
+                onPressed: () {
+                  RenderBox screen = context.findRenderObject();
+                  Offset size = screen.size.bottomRight(Offset(0, 0));
+                  print(size);
+                }),
           ],
         ),
       ),
