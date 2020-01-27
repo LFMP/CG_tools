@@ -55,12 +55,13 @@ class _DrawPageState extends State<DrawPage> {
       yMax = max(p1.dy, p2.dy);
     }
 
-    double screenRatio =
-        cardKey.currentContext.size.width / cardKey.currentContext.size.height;
-    double viewPortRatio = ((xMax - xMin) / (yMax - yMin)).abs();
-    sX = (cardKey.currentContext.size.width) / (xMax - xMin).abs();
-    sY = (cardKey.currentContext.size.height) / (yMax - yMin).abs();
+    double screenRatio = (cardKey.currentContext.size.width) /
+        (cardKey.currentContext.size.height);
+    double viewPortRatio = ((xMax - xMin) / (yMax - yMin));
+    sX = (cardKey.currentContext.size.width) / (xMax - xMin);
+    sY = (cardKey.currentContext.size.height) / (yMax - yMin);
     math.Matrix3 matrixAux;
+    double raio;
     if (screenRatio > viewPortRatio) {
       double yMaxNovo = (screenRatio / (xMax - xMin)) + yMin;
       setState(() {
@@ -121,8 +122,28 @@ class _DrawPageState extends State<DrawPage> {
                   ),
                 ),
                 fig.pontos[i] = Offset(
-                    matrixAux.getColumn(0)[0].ceil().toDouble(),
-                    matrixAux.getColumn(0)[1].ceil().toDouble()),
+                  matrixAux.getColumn(0)[0].ceil().toDouble(),
+                  matrixAux.getColumn(0)[1].ceil().toDouble(),
+                ),
+                if (fig.forma == Forma.circulo)
+                  {
+                    raio = sqrt(
+                      (pow(fig.pontos[1].dx - fig.pontos[0].dx, 2) +
+                              pow(fig.pontos[1].dy - fig.pontos[0].dy, 2))
+                          .abs(),
+                    ),
+                    if (fig.pontos[1].dx + raio >
+                        cardKey.currentContext.size.width)
+                      {
+                        fig.pontos[1] = Offset(
+                            cardKey.currentContext.size.width,
+                            fig.pontos[0].dy),
+                      },
+                    if (fig.pontos[1].dx - raio < 0)
+                      {
+                        fig.pontos[1] = Offset(0, fig.pontos[0].dy),
+                      }
+                  },
               },
           },
         );
@@ -172,13 +193,13 @@ class _DrawPageState extends State<DrawPage> {
                 pow(f.pontos[1].dy - f.pontos[0].dy, 2),
             raio = sqrt(delta.abs()),
             if (f.pontos[0].dx - raio < viewport[0])
-              {viewport[0] = f.pontos[0].dx},
+              {viewport[0] = f.pontos[0].dx - raio},
             if (f.pontos[0].dx + raio > viewport[2])
-              {viewport[2] = f.pontos[0].dx},
+              {viewport[2] = f.pontos[0].dx + raio},
             if (f.pontos[0].dy - raio < viewport[1])
-              {viewport[1] = f.pontos[0].dy},
+              {viewport[1] = f.pontos[0].dy - raio},
             if (f.pontos[0].dy + raio > viewport[3])
-              {viewport[3] = f.pontos[0].dy},
+              {viewport[3] = f.pontos[0].dy + raio},
           },
       },
     );
@@ -977,7 +998,6 @@ class _DrawPageState extends State<DrawPage> {
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          key: cardKey,
           decoration: BoxDecoration(
             border: Border.all(
               color: Colors.black,
@@ -1051,8 +1071,8 @@ class _DrawPageState extends State<DrawPage> {
             },
             child: CustomPaint(
               isComplex: false,
+              key: cardKey,
               painter: MagicalPaint(figuras: objetos),
-              size: MediaQuery.of(context).size,
             ),
           ),
         ),

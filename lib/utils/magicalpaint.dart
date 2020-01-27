@@ -80,7 +80,7 @@ class MagicalPaint extends CustomPainter {
 
     // Paint para desenhar figuras
     Paint paint = new Paint()
-      ..strokeWidth = 5.0
+      ..strokeWidth = 3.0
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
