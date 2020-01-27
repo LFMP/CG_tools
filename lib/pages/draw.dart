@@ -125,25 +125,6 @@ class _DrawPageState extends State<DrawPage> {
                   matrixAux.getColumn(0)[0].ceil().toDouble(),
                   matrixAux.getColumn(0)[1].ceil().toDouble(),
                 ),
-                if (fig.forma == Forma.circulo)
-                  {
-                    raio = sqrt(
-                      (pow(fig.pontos[1].dx - fig.pontos[0].dx, 2) +
-                              pow(fig.pontos[1].dy - fig.pontos[0].dy, 2))
-                          .abs(),
-                    ),
-                    if (fig.pontos[1].dx + raio >
-                        cardKey.currentContext.size.width)
-                      {
-                        fig.pontos[1] = Offset(
-                            cardKey.currentContext.size.width,
-                            fig.pontos[0].dy),
-                      },
-                    if (fig.pontos[1].dx - raio < 0)
-                      {
-                        fig.pontos[1] = Offset(0, fig.pontos[0].dy),
-                      }
-                  },
               },
           },
         );
@@ -174,19 +155,14 @@ class _DrawPageState extends State<DrawPage> {
     }
     objetos.forEach(
       (Figura f) => {
-        if (f.forma == Forma.linha ||
-            f.forma == Forma.triangulo ||
-            f.forma == Forma.quadradro)
-          {
-            f.pontos.forEach(
-              (Offset coordinate) => {
-                if (coordinate.dx < viewport[0]) {viewport[0] = coordinate.dx},
-                if (coordinate.dx > viewport[2]) {viewport[2] = coordinate.dx},
-                if (coordinate.dy < viewport[1]) {viewport[1] = coordinate.dy},
-                if (coordinate.dy > viewport[3]) {viewport[3] = coordinate.dy},
-              },
-            ),
+        f.pontos.forEach(
+          (Offset coordinate) => {
+            if (coordinate.dx < viewport[0]) {viewport[0] = coordinate.dx},
+            if (coordinate.dx > viewport[2]) {viewport[2] = coordinate.dx},
+            if (coordinate.dy < viewport[1]) {viewport[1] = coordinate.dy},
+            if (coordinate.dy > viewport[3]) {viewport[3] = coordinate.dy},
           },
+        ),
         if (f.forma == Forma.circulo)
           {
             delta = pow(f.pontos[1].dx - f.pontos[0].dx, 2) +
@@ -1057,6 +1033,24 @@ class _DrawPageState extends State<DrawPage> {
 
               if (formaSelecionada == Forma.circulo &&
                   _localPosition.length == 2) {
+                double delta =
+                    pow(_localPosition[1].dx - _localPosition[0].dx, 2) +
+                        pow(_localPosition[1].dy - _localPosition[0].dy, 2);
+                double raio = sqrt(delta.abs());
+
+                Offset xMin =
+                    Offset(_localPosition[0].dx - raio, _localPosition[0].dy);
+                Offset yMin =
+                    Offset(_localPosition[0].dx, _localPosition[0].dy - raio);
+                Offset xMax =
+                    Offset(_localPosition[0].dx + raio, _localPosition[0].dy);
+                Offset yMax =
+                    Offset(_localPosition[0].dx, _localPosition[0].dy + raio);
+
+                _localPosition.add(xMin);
+                _localPosition.add(yMin);
+                _localPosition.add(xMax);
+                _localPosition.add(yMax);
                 setState(() {
                   objetos.add(
                     Figura(_localPosition, Forma.circulo, false),
