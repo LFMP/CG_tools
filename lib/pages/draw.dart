@@ -630,7 +630,9 @@ class _DrawPageState extends State<DrawPage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.zoom_in),
-            onPressed: () => print('zooooooooooom'),
+            onPressed: () => {
+              formaSelecionada = Forma.nenhuma,
+            },
           ),
           IconButton(
             icon: Icon(Icons.select_all),
@@ -1065,6 +1067,7 @@ class _DrawPageState extends State<DrawPage> {
                   _localPosition.length == 2) {
                 setState(() {
                   zoomClickArea = _localPosition;
+                  zoom(p1: zoomClickArea[0], p2: zoomClickArea[1]);
                   _localPosition = [];
                 });
               }
