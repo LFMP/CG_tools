@@ -43,10 +43,10 @@ class _DrawPageState extends State<DrawPage> {
     double sY;
     if (p1 == null || p2 == null) {
       getLimites();
-      xMin = viewport[0];
-      yMin = viewport[1];
-      xMax = viewport[2];
-      yMax = viewport[3];
+      xMin = min(viewport[0],viewport[2]);
+      yMin = min(viewport[1],viewport[3]);
+      xMax = max(viewport[0],viewport[2]);
+      yMax = max(viewport[1],viewport[3]);
     } else {
       xMin = min(p1.dx, p2.dx);
       yMin = min(p1.dy, p2.dy);
