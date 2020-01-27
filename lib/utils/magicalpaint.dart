@@ -110,7 +110,7 @@ class MagicalPaint extends CustomPainter {
         double delta =
             pow(figuras[i].pontos[1].dx - figuras[i].pontos[0].dx, 2) +
                 pow(figuras[i].pontos[1].dy - figuras[i].pontos[0].dy, 2);
-        double raio = delta < 0 ? sqrt(-delta) : sqrt(delta);
+        double raio = sqrt(delta.abs());
 
         canvas.drawCircle(figuras[i].pontos[0], raio, paint);
       }

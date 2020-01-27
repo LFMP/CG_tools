@@ -33,6 +33,7 @@ class _DrawPageState extends State<DrawPage> {
   List<double> viewport = <double>[0, 0, 0, 0];
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
+  final GlobalKey cardKey = GlobalKey();
 
   void zoom({Offset p1, Offset p2}) {
     double xMin;
@@ -43,22 +44,22 @@ class _DrawPageState extends State<DrawPage> {
     double sY;
     if (p1 == null || p2 == null) {
       getLimites();
-      xMin = min(viewport[0],viewport[2]);
-      yMin = min(viewport[1],viewport[3]);
-      xMax = max(viewport[0],viewport[2]);
-      yMax = max(viewport[1],viewport[3]);
+      xMin = min(viewport[0], viewport[2]);
+      yMin = min(viewport[1], viewport[3]);
+      xMax = max(viewport[0], viewport[2]);
+      yMax = max(viewport[1], viewport[3]);
     } else {
       xMin = min(p1.dx, p2.dx);
       yMin = min(p1.dy, p2.dy);
       xMax = max(p1.dx, p2.dx);
       yMax = max(p1.dy, p2.dy);
     }
+    
     double screenRatio =
-        MediaQuery.of(context).size.width / MediaQuery.of(context).size.height;
-    double viewPortRatio = (xMax - xMin) / (yMax - yMin);
-
-    sX = (xMax - xMin) / (MediaQuery.of(context).size.width);
-    sY = (yMax - yMin) / (MediaQuery.of(context).size.height);
+        cardKey.currentContext.size.width / cardKey.currentContext.size.height;
+    double viewPortRatio = ((xMax - xMin) / (yMax - yMin)).abs();
+    sX = (cardKey.currentContext.size.width) / (xMax - xMin).abs();
+    sY = (cardKey.currentContext.size.height) / (yMax - yMin).abs();
     if (screenRatio > viewPortRatio) {
       double yMaxNovo = ((xMax - xMin) / screenRatio) + yMin;
       setState(() {
@@ -70,8 +71,8 @@ class _DrawPageState extends State<DrawPage> {
                   (fig.pontos[i].dx * sX) - (sX * xMin),
                   (yMax -
                           yMaxNovo -
-                          2 * sY * yMin +
-                          2 * sY * fig.pontos[i].dy) /
+                          (2 * sY * yMin) +
+                          (2 * sY * fig.pontos[i].dy)) /
                       2,
                 ),
               },
@@ -88,10 +89,10 @@ class _DrawPageState extends State<DrawPage> {
                 fig.pontos[i] = Offset(
                   (xMax -
                           xMaxNovo +
-                          2 * sX * fig.pontos[i].dx -
-                          2 * sX * xMin) /
+                          (2 * sX * fig.pontos[i].dx) -
+                          (2 * sX * xMin)) /
                       2,
-                  -sY * yMin + sY * fig.pontos[i].dy,
+                  -(sY * yMin) + (sY * fig.pontos[i].dy),
                 ),
               },
           },
@@ -140,7 +141,7 @@ class _DrawPageState extends State<DrawPage> {
           {
             delta = pow(f.pontos[1].dx - f.pontos[0].dx, 2) +
                 pow(f.pontos[1].dy - f.pontos[0].dy, 2),
-            raio = delta < 0 ? sqrt(-delta) : sqrt(delta),
+            raio = sqrt(delta.abs()),
             if (f.pontos[0].dx - raio < viewport[0])
               {viewport[0] = f.pontos[0].dx},
             if (f.pontos[0].dx + raio > viewport[2])
@@ -947,6 +948,7 @@ class _DrawPageState extends State<DrawPage> {
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
+          key: cardKey,
           decoration: BoxDecoration(
             border: Border.all(
               color: Colors.black,
