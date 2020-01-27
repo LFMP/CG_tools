@@ -282,8 +282,11 @@ class _DrawPageState extends State<DrawPage> {
                           trailing: Checkbox(
                             value: objetos[index].selected,
                             onChanged: (bool value) => {
+                              BlocProvider.of<DrawBloc>(context)
+                                  .add(ItemModalButtonPressed()),
                               setState(() {
-                                objetos[index].selected = value;
+                                objetos[index].selected =
+                                    !objetos[index].selected;
                               }),
                             },
                           ),
