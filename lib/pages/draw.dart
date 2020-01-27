@@ -61,7 +61,6 @@ class _DrawPageState extends State<DrawPage> {
     sX = (cardKey.currentContext.size.width) / (xMax - xMin);
     sY = (cardKey.currentContext.size.height) / (yMax - yMin);
     math.Matrix3 matrixAux;
-    double raio;
     if (screenRatio > viewPortRatio) {
       double yMaxNovo = (screenRatio / (xMax - xMin)) + yMin;
       setState(() {
