@@ -53,7 +53,6 @@ class _DrawPageState extends State<DrawPage> {
       xMax = max(p1.dx, p2.dx);
       yMax = max(p1.dy, p2.dy);
     }
-
     double screenRatio =
         MediaQuery.of(context).size.width / MediaQuery.of(context).size.height;
     double viewPortRatio = (xMax - xMin) / (yMax - yMin);
@@ -69,9 +68,11 @@ class _DrawPageState extends State<DrawPage> {
               {
                 fig.pontos[i] = Offset(
                   (fig.pontos[i].dx * sX) - (sX * xMin),
-                  (-fig.pontos[i].dy * sY) -
-                      (sY * yMin) -
-                      ((yMax - yMaxNovo) / 2),
+                  (yMax -
+                          yMaxNovo -
+                          2 * sY * yMin +
+                          2 * sY * fig.pontos[i].dy) /
+                      2,
                 ),
               },
           },
@@ -85,10 +86,12 @@ class _DrawPageState extends State<DrawPage> {
             for (int i = 0; i < fig.pontos.length; i++)
               {
                 fig.pontos[i] = Offset(
-                  (fig.pontos[i].dx * sX) -
-                      (sX * xMin) -
-                      ((xMax - xMaxNovo) / 2),
-                  (-fig.pontos[i].dy * sY) - (sY * yMin),
+                  (xMax -
+                          xMaxNovo +
+                          2 * sX * fig.pontos[i].dx -
+                          2 * sX * xMin) /
+                      2,
+                  -sY * yMin + sY * fig.pontos[i].dy,
                 ),
               },
           },
@@ -890,7 +893,7 @@ class _DrawPageState extends State<DrawPage> {
                 icon: Icon(Icons.zoom_out_map),
                 color: AppStyle.white,
                 onPressed: () {
-                  zoom();
+                  objetos.isNotEmpty ? zoom() : print('objetos zero');
                 }),
           ],
         ),
