@@ -54,27 +54,42 @@ class _DrawPageState extends State<DrawPage> {
       xMax = max(p1.dx, p2.dx);
       yMax = max(p1.dy, p2.dy);
     }
-    
+
     double screenRatio =
         cardKey.currentContext.size.width / cardKey.currentContext.size.height;
     double viewPortRatio = ((xMax - xMin) / (yMax - yMin)).abs();
     sX = (cardKey.currentContext.size.width) / (xMax - xMin).abs();
     sY = (cardKey.currentContext.size.height) / (yMax - yMin).abs();
+    math.Matrix3 matrixAux;
     if (screenRatio > viewPortRatio) {
-      double yMaxNovo = ((xMax - xMin) / screenRatio) + yMin;
+      double yMaxNovo = (screenRatio / (xMax - xMin)) + yMin;
       setState(() {
         objetos.forEach(
           (Figura fig) => {
             for (int i = 0; i < fig.pontos.length; i++)
               {
-                fig.pontos[i] = Offset(
-                  (fig.pontos[i].dx * sX) - (sX * xMin),
-                  (yMax -
-                          yMaxNovo -
-                          (2 * sY * yMin) +
-                          (2 * sY * fig.pontos[i].dy)) /
-                      2,
+                matrixAux = math.Matrix3.columns(
+                  math.Vector3(1, 0, 0),
+                  math.Vector3(0, 1, 0),
+                  math.Vector3(0, (yMax - yMaxNovo) / 2, 0),
                 ),
+                matrixAux.multiply(
+                  math.Matrix3.columns(
+                    math.Vector3(sX, 0, 0),
+                    math.Vector3(0, sY, 0),
+                    math.Vector3(-sX * xMin, -sY * yMin, 0),
+                  ),
+                ),
+                matrixAux.multiply(
+                  math.Matrix3.columns(
+                    math.Vector3(fig.pontos[i].dx, fig.pontos[i].dy, 1),
+                    math.Vector3(0, 0, 0),
+                    math.Vector3(0, 0, 0),
+                  ),
+                ),
+                fig.pontos[i] = Offset(
+                    matrixAux.getColumn(0)[0].ceil().toDouble(),
+                    matrixAux.getColumn(0)[1].ceil().toDouble()),
               },
           },
         );
@@ -86,14 +101,28 @@ class _DrawPageState extends State<DrawPage> {
           (Figura fig) => {
             for (int i = 0; i < fig.pontos.length; i++)
               {
-                fig.pontos[i] = Offset(
-                  (xMax -
-                          xMaxNovo +
-                          (2 * sX * fig.pontos[i].dx) -
-                          (2 * sX * xMin)) /
-                      2,
-                  -(sY * yMin) + (sY * fig.pontos[i].dy),
+                matrixAux = math.Matrix3.columns(
+                  math.Vector3(1, 0, 0),
+                  math.Vector3(0, 1, 0),
+                  math.Vector3((xMax - xMaxNovo) / 2, 0, 0),
                 ),
+                matrixAux.multiply(
+                  math.Matrix3.columns(
+                    math.Vector3(sX, 0, 0),
+                    math.Vector3(0, sY, 0),
+                    math.Vector3(-sX * xMin, -sY * yMin, 0),
+                  ),
+                ),
+                matrixAux.multiply(
+                  math.Matrix3.columns(
+                    math.Vector3(fig.pontos[i].dx, fig.pontos[i].dy, 1),
+                    math.Vector3(0, 0, 0),
+                    math.Vector3(0, 0, 0),
+                  ),
+                ),
+                fig.pontos[i] = Offset(
+                    matrixAux.getColumn(0)[0].ceil().toDouble(),
+                    matrixAux.getColumn(0)[1].ceil().toDouble()),
               },
           },
         );
