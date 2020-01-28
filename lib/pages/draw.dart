@@ -770,8 +770,8 @@ class _DrawPageState extends State<DrawPage> {
                   return AlertDialog(
                     title: Text('Informe a operação desejada'),
                     content: TextFormField(
-                      decoration:
-                          InputDecoration(hintText: 'operacao valor1 valor2'),
+                      decoration: InputDecoration(
+                          hintText: 'operacao valor1 valor2 valor 3'),
                       keyboardType: TextInputType.text,
                       controller: commandController,
                     ),
@@ -787,22 +787,57 @@ class _DrawPageState extends State<DrawPage> {
                         onPressed: () => {
                           string = commandController.text,
                           splitted = string.split(" "),
-                          if (splitted[0] == "rotate")
+                          if (splitted[0] == 'rotate')
                             {
-                              _rotate(num.parse(splitted[1]).toDouble()),
+                              splitted.length > 2
+                                  ? _rotate(
+                                      num.parse(splitted[1]).toDouble(),
+                                      pontoRotacao: Offset(
+                                        num.parse(splitted[2]).toDouble(),
+                                        num.parse(splitted[3]).toDouble(),
+                                      ),
+                                    )
+                                  : _rotate(num.parse(splitted[1]).toDouble()),
                               Navigator.of(context).pop(),
                             }
-                          else if (splitted[0] == "translate")
+                          else if (splitted[0] == 'translate')
                             {
                               _translate(num.parse(splitted[1]).toDouble(),
                                   num.parse(splitted[2]).toDouble()),
                               Navigator.of(context).pop(),
                             }
-                          else if (splitted[0] == "scale")
+                          else if (splitted[0] == 'scale')
                             {
                               _scale(num.parse(splitted[1]).toDouble(),
                                   num.parse(splitted[2]).toDouble()),
                               Navigator.of(context).pop(),
+                            }
+                          else if (splitted[0] == 'zoom')
+                            {
+                              splitted[1] == '0'
+                                  ? zoom()
+                                  : zoom(
+                                      p1: Offset(
+                                        num.parse(splitted[1]).toDouble(),
+                                        num.parse(splitted[2]).toDouble(),
+                                      ),
+                                      p2: Offset(
+                                        num.parse(splitted[3]).toDouble(),
+                                        num.parse(splitted[4]).toDouble(),
+                                      ),
+                                    ),
+                            }
+                          else if (splitted[0] == 'select')
+                            {
+                              objetos[num.parse(splitted[1]).toInt()].selected =
+                                  !objetos[num.parse(splitted[1]).toInt()].selected,
+                            }
+                          else if (splitted[0] == 'selectall')
+                            {
+                              futuro.clear(),
+                              futuro.addAll(objetos),
+                              for (int i = 0; i < objetos.length; i++)
+                                {objetos[i].selected = true}
                             }
                           else
                             {
