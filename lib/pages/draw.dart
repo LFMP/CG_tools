@@ -25,11 +25,14 @@ class _DrawPageState extends State<DrawPage> {
   final rotateController = TextEditingController();
   final scaleXController = TextEditingController();
   final scaleYController = TextEditingController();
+  final dxController = TextEditingController();
+  final dyController = TextEditingController();
   List<Offset> _points = <Offset>[];
   List<Offset> zoomClickArea = <Offset>[];
   List<Offset> _localPosition = <Offset>[];
   List<Figura> objetos = <Figura>[];
   List<Figura> futuro = <Figura>[];
+  List<Figura> selecionados = <Figura>[];
   List<double> viewport = <double>[0, 0, 0, 0];
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
@@ -292,25 +295,27 @@ class _DrawPageState extends State<DrawPage> {
     objetos.removeWhere((Figura f) => f.selected == true);
   }
 
-  void _rotate(double degrees) {
+  void _rotate(double degrees, {Offset pontoRotacao}) {
     final double cosseno = cos(math.radians(degrees));
     final double seno = sin(math.radians(degrees));
     math.Matrix3 resultLine;
     math.Matrix4 resultLineSquare;
+    double dx;
+    double dy;
     objetos.where((Figura fig) => fig.selected == true).forEach(
           (Figura f) => {
+            if (pontoRotacao == null)
+              {dx = f.pontos[0].dx, dy = f.pontos[0].dy}
+            else
+              {dx = pontoRotacao.dx, dy = pontoRotacao.dy},
             if (f.forma == Forma.linha || f.forma == Forma.circulo)
               {
                 resultLine = math.Matrix3.columns(
                   math.Vector3(cosseno, seno, 0),
                   math.Vector3(-seno, cosseno, 0),
                   math.Vector3(
-                    (f.pontos[0].dy * seno) -
-                        (f.pontos[0].dx * cosseno) +
-                        f.pontos[0].dx,
-                    -(f.pontos[0].dx * seno) -
-                        (f.pontos[0].dy * cosseno) +
-                        f.pontos[0].dy,
+                    (dy * seno) - (dx * cosseno) + dx,
+                    -(dx * seno) - (dy * cosseno) + dy,
                     1,
                   ),
                 ),
@@ -336,12 +341,8 @@ class _DrawPageState extends State<DrawPage> {
                   math.Vector3(cosseno, seno, 0),
                   math.Vector3(-seno, cosseno, 0),
                   math.Vector3(
-                    (f.pontos[0].dy * seno) -
-                        (f.pontos[0].dx * cosseno) +
-                        f.pontos[0].dx,
-                    -(f.pontos[0].dx * seno) -
-                        (f.pontos[0].dy * cosseno) +
-                        f.pontos[0].dy,
+                    (dy * seno) - (dx * cosseno) + dx,
+                    -(dx * seno) - (dy * cosseno) + dy,
                     1,
                   ),
                 ),
@@ -370,15 +371,8 @@ class _DrawPageState extends State<DrawPage> {
                 resultLineSquare = math.Matrix4.columns(
                   math.Vector4(cosseno, seno, 0, 0),
                   math.Vector4(-seno, cosseno, 0, 0),
-                  math.Vector4(
-                      (f.pontos[0].dy * seno) -
-                          (f.pontos[0].dx * cosseno) +
-                          f.pontos[0].dx,
-                      -(f.pontos[0].dx * seno) -
-                          (f.pontos[0].dy * cosseno) +
-                          f.pontos[0].dy,
-                      1,
-                      0),
+                  math.Vector4((dy * seno) - (dx * cosseno) + dx,
+                      -(dx * seno) - (dy * cosseno) + dy, 1, 0),
                   math.Vector4(0, 0, 0, 0),
                 ),
                 resultLineSquare.multiply(
@@ -697,9 +691,47 @@ class _DrawPageState extends State<DrawPage> {
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text('Digite quantos graus deseja rotacionar'),
-                    content: TextFormField(
-                      keyboardType: TextInputType.number,
-                      controller: rotateController,
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text('Selecione a partir de qual ponto rotacionar'),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            SizedBox(
+                              width: 100,
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'X',
+                                ),
+                                keyboardType: TextInputType.number,
+                                controller: dxController,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 40,
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'Y',
+                                ),
+                                keyboardType: TextInputType.number,
+                                controller: dyController,
+                              ),
+                            ),
+                          ],
+                        ),
+                        TextFormField(
+                          keyboardType: TextInputType.number,
+                          controller: rotateController,
+                          decoration: InputDecoration(
+                            labelText: 'Angulo',
+                          ),
+                        ),
+                      ],
                     ),
                     actions: <Widget>[
                       FlatButton(
@@ -712,7 +744,13 @@ class _DrawPageState extends State<DrawPage> {
                         child: const Text('Confirmar'),
                         onPressed: () {
                           setState(() {});
-                          _rotate(num.parse(rotateController.text).toDouble());
+                          _rotate(
+                            num.parse(rotateController.text).toDouble(),
+                            pontoRotacao: Offset(
+                              num.parse(dxController.text).toDouble(),
+                              num.parse(dyController.text).toDouble(),
+                            ),
+                          );
                           Navigator.of(context).pop();
                         },
                       ),
