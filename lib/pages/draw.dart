@@ -771,7 +771,7 @@ class _DrawPageState extends State<DrawPage> {
                     title: Text('Informe a operação desejada'),
                     content: TextFormField(
                       decoration: InputDecoration(
-                          hintText: 'operacao valor1 valor2 valor 3'),
+                          hintText: 'operacao [valor1 valor2 valor 3 valor 4]'),
                       keyboardType: TextInputType.text,
                       controller: commandController,
                     ),
@@ -830,7 +830,8 @@ class _DrawPageState extends State<DrawPage> {
                           else if (splitted[0] == 'select')
                             {
                               objetos[num.parse(splitted[1]).toInt()].selected =
-                                  !objetos[num.parse(splitted[1]).toInt()].selected,
+                                  !objetos[num.parse(splitted[1]).toInt()]
+                                      .selected,
                             }
                           else if (splitted[0] == 'selectall')
                             {
