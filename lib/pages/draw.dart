@@ -37,6 +37,7 @@ class _DrawPageState extends State<DrawPage> {
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
   final GlobalKey cardKey = GlobalKey();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void zoom({Offset p1, Offset p2}) {
     double xMin;
@@ -592,9 +593,18 @@ class _DrawPageState extends State<DrawPage> {
         );
   }
 
+  SnackBar createSnack(String text) {
+    return SnackBar(
+      content: Text(text),
+      backgroundColor: AppStyle.triadic1,
+      duration: Duration(milliseconds: 1200),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: AppStyle.primary,
         centerTitle: true,
@@ -794,8 +804,8 @@ class _DrawPageState extends State<DrawPage> {
                             }
                           else if (splitted[0] == "translate")
                             {
-                              _translate(num.parse(splitted[1]).toDouble(),
-                                  num.parse(splitted[2]).toDouble()),
+                              // _translate(num.parse(splitted[1]).toDouble(),
+                              //     num.parse(splitted[2]).toDouble()),
                               Navigator.of(context).pop(),
                             }
                           else if (splitted[0] == "scale")
@@ -820,73 +830,11 @@ class _DrawPageState extends State<DrawPage> {
             IconButton(
               icon: Icon(MdiIcons.arrowAll),
               color: AppStyle.white,
-              onPressed: () => showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Digite o ponto para Translacao'),
-                    content: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                width: 80,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'X',
-                                    alignLabelWithHint: true,
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: scaleXController,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                width: 80,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Y',
-                                    alignLabelWithHint: true,
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: scaleYController,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: const Text('Cancelar'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      FlatButton(
-                        child: const Text('Confirmar'),
-                        onPressed: () {
-                          _translate(
-                              num.parse(scaleXController.text).toDouble(),
-                              num.parse(scaleYController.text).toDouble());
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              ),
+              onPressed: () {
+                formaSelecionada = Forma.translacao;
+                _scaffoldKey.currentState.showSnackBar(createSnack(
+                    "Selecione o primeiro ponto para fazer a translação"));
+              },
             ),
             IconButton(
               icon: Icon(Icons.crop),
@@ -1032,6 +980,7 @@ class _DrawPageState extends State<DrawPage> {
               Offset coordenadas = object.localToGlobal(details.localPosition);
               _localPosition.add(coordenadas);
               _points = List.from(_points)..add(coordenadas);
+
               if (formaSelecionada == Forma.linha &&
                   _localPosition.length == 2) {
                 setState(() {
@@ -1104,6 +1053,39 @@ class _DrawPageState extends State<DrawPage> {
                   zoom(p1: zoomClickArea[0], p2: zoomClickArea[1]);
                   _localPosition = [];
                 });
+              }
+
+              if (formaSelecionada == Forma.translacao &&
+                  _localPosition.length == 1) {
+                _scaffoldKey.currentState.showSnackBar(createSnack(
+                    "Selecione o segundo ponto para fazer a translação"));
+              }
+
+              if (formaSelecionada == Forma.translacao &&
+                  _localPosition.length == 2) {
+                double dx = (_localPosition[0].dx - _localPosition[1].dx).abs();
+                double dy = (_localPosition[0].dy - _localPosition[1].dy).abs();
+
+                double x;
+                double y;
+
+                if (_localPosition[0].dx < _localPosition[1].dx) {
+                  x = objetos[0].pontos[0].dx + dx;
+                } else {
+                  x = objetos[0].pontos[0].dx - dx;
+                }
+
+                if (_localPosition[0].dy < _localPosition[1].dy) {
+                  y = objetos[0].pontos[0].dy + dy;
+                } else {
+                  y = objetos[0].pontos[0].dy - dy;
+                }
+
+                setState(() {
+                  _translate(x, y);
+                  _localPosition = [];
+                });
+                formaSelecionada = objetos[objetos.length - 1].forma;
               }
             },
             child: CustomPaint(
