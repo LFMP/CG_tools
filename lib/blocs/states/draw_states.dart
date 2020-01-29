@@ -14,3 +14,7 @@ class ModalLoading extends DrawStates {}
 class ModalLoaded extends DrawStates {}
 
 class ItemModalSelected extends DrawStates {}
+
+class AjudaSelecionada extends DrawStates {}
+
+class AjudaNaoSelecionada extends DrawStates {}

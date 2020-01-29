@@ -18,5 +18,13 @@ class DrawBloc extends Bloc<DrawEvents, DrawStates> {
       yield ModalLoading();
       yield ItemModalSelected();
     }
+
+    if (event is AjudaModalButtonPressed) {
+      yield AjudaSelecionada();
+    }
+
+    if (event is CanvasModalButtonPressed) {
+      yield AjudaNaoSelecionada();
+    }
   }
 }
