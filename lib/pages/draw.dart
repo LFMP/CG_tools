@@ -679,11 +679,15 @@ class _DrawPageState extends State<DrawPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             IconButton(
+              tooltip: 'Rotacionar 90',
+              enableFeedback: true,
               icon: Icon(Icons.rotate_90_degrees_ccw),
               color: AppStyle.white,
               onPressed: () => _rotate(90),
             ),
             IconButton(
+              tooltip: 'Rotacionar',
+              enableFeedback: true,
               icon: Icon(Icons.rotate_right),
               color: AppStyle.white,
               onPressed: () => showDialog<void>(
@@ -760,6 +764,8 @@ class _DrawPageState extends State<DrawPage> {
               ),
             ),
             IconButton(
+              tooltip: 'Linha de comando',
+              enableFeedback: true,
               icon: Icon(Icons.chevron_right),
               color: AppStyle.white,
               onPressed: () => showDialog<void>(
@@ -854,6 +860,8 @@ class _DrawPageState extends State<DrawPage> {
               ),
             ),
             IconButton(
+              tooltip: 'Translacao',
+              enableFeedback: true,
               icon: Icon(MdiIcons.arrowAll),
               color: AppStyle.white,
               onPressed: () => showDialog<void>(
@@ -925,6 +933,8 @@ class _DrawPageState extends State<DrawPage> {
               ),
             ),
             IconButton(
+              tooltip: 'Mudar escala',
+              enableFeedback: true,
               icon: Icon(Icons.crop),
               color: AppStyle.white,
               onPressed: () => showDialog<void>(
@@ -995,11 +1005,14 @@ class _DrawPageState extends State<DrawPage> {
               ),
             ),
             IconButton(
-                icon: Icon(Icons.zoom_out_map),
-                color: AppStyle.white,
-                onPressed: () {
-                  objetos.isNotEmpty ? zoom() : print('objetos zero');
-                }),
+              tooltip: 'Zoom extend',
+              enableFeedback: true,
+              icon: Icon(Icons.zoom_out_map),
+              color: AppStyle.white,
+              onPressed: () {
+                objetos.isNotEmpty ? zoom() : print('objetos zero');
+              },
+            ),
           ],
         ),
       ),
@@ -1018,26 +1031,31 @@ class _DrawPageState extends State<DrawPage> {
         backgroundColor: AppStyle.primary,
         children: [
           SpeedDialChild(
+            label: 'Linha',
             backgroundColor: AppStyle.triadic1,
             child: Icon(MdiIcons.minus),
             onTap: () => formaSelecionada = Forma.linha,
           ),
           SpeedDialChild(
+            label: 'Triangulo',
             backgroundColor: AppStyle.triadic1,
             child: Icon(MdiIcons.triangleOutline),
             onTap: () => formaSelecionada = Forma.triangulo,
           ),
           SpeedDialChild(
+            label: 'Quadrado',
             backgroundColor: AppStyle.triadic1,
             child: Icon(MdiIcons.squareOutline),
             onTap: () => formaSelecionada = Forma.quadradro,
           ),
           SpeedDialChild(
+            label: 'Circulo',
             backgroundColor: AppStyle.triadic1,
             child: Icon(MdiIcons.circleOutline),
             onTap: () => formaSelecionada = Forma.circulo,
           ),
           SpeedDialChild(
+            label: 'Deletar',
             backgroundColor: AppStyle.triadic1,
             child: Icon(Icons.delete),
             onTap: () => {
