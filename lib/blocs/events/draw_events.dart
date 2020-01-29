@@ -8,3 +8,7 @@ abstract class DrawEvents extends Equatable {
 class SelectModalButtonPressed extends DrawEvents {}
 
 class ItemModalButtonPressed extends DrawEvents {}
+
+class AjudaModalButtonPressed extends DrawEvents {}
+
+class CanvasModalButtonPressed extends DrawEvents {}
