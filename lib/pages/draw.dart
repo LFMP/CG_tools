@@ -597,7 +597,10 @@ class _DrawPageState extends State<DrawPage> {
 
   SnackBar createSnack(String text) {
     return SnackBar(
-      content: Text(text),
+      content: Text(
+        text,
+        style: TextStyle(color: Colors.black),
+      ),
       backgroundColor: AppStyle.triadic1,
       duration: Duration(milliseconds: 1200),
     );
@@ -611,29 +614,24 @@ class _DrawPageState extends State<DrawPage> {
         key: _scaffoldKey,
         appBar: AppBar(
           backgroundColor: AppStyle.primary,
+          leading: IconButton(
+            icon: Icon(Icons.help),
+            tooltip: "Ajuda",
+            onPressed: () => _ajudaSelecionada
+                ? {
+                    BlocProvider.of<DrawBloc>(context)
+                        .add(CanvasModalButtonPressed()),
+                    _ajudaSelecionada = false,
+                  }
+                : {
+                    BlocProvider.of<DrawBloc>(context)
+                        .add(AjudaModalButtonPressed()),
+                    _ajudaSelecionada = true,
+                  },
+          ),
           centerTitle: true,
-          title: Text('CG tools'),
+          title: Text('CG'),
           actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.help),
-              onPressed: () => _ajudaSelecionada
-                  ? {
-                      BlocProvider.of<DrawBloc>(context)
-                          .add(CanvasModalButtonPressed()),
-                      _ajudaSelecionada = false,
-                    }
-                  : {
-                      BlocProvider.of<DrawBloc>(context)
-                          .add(AjudaModalButtonPressed()),
-                      _ajudaSelecionada = true,
-                    },
-            ),
-            IconButton(
-              icon: Icon(Icons.zoom_in),
-              onPressed: () => {
-                formaSelecionada = Forma.nenhuma,
-              },
-            ),
             IconButton(
               icon: Icon(Icons.select_all),
               color: AppStyle.white,
@@ -645,24 +643,7 @@ class _DrawPageState extends State<DrawPage> {
             ),
             PopupMenuButton<opcoes>(
               onSelected: (opcoes result) {
-                if (result == opcoes.undo) {
-                  if (_clearSelected) {
-                    setState(() {
-                      objetos.addAll(futuro);
-                      futuro.clear();
-                      _clearSelected = false;
-                    });
-                  } else if (objetos.isNotEmpty) {
-                    setState(() {
-                      futuro.add(objetos.removeLast());
-                      _clearSelected = false;
-                    });
-                  }
-                } else if (result == opcoes.redo && futuro.isNotEmpty) {
-                  setState(() {
-                    objetos.add(futuro.removeLast());
-                  });
-                } else if (result == opcoes.clear) {
+                if (result == opcoes.clear) {
                   setState(() {
                     futuro.addAll(objetos);
                     objetos.clear();
@@ -679,14 +660,6 @@ class _DrawPageState extends State<DrawPage> {
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<opcoes>>[
-                const PopupMenuItem<opcoes>(
-                  value: opcoes.undo,
-                  child: Text('Desfazer'),
-                ),
-                const PopupMenuItem<opcoes>(
-                  value: opcoes.redo,
-                  child: Text('Refazer'),
-                ),
                 const PopupMenuItem<opcoes>(
                   value: opcoes.clear,
                   child: Text('Limpar tela'),
@@ -707,279 +680,52 @@ class _DrawPageState extends State<DrawPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               IconButton(
-                tooltip: 'Rotacionar 90',
-                enableFeedback: true,
-                icon: Icon(Icons.rotate_90_degrees_ccw),
-                color: AppStyle.white,
-                onPressed: () => _rotate(90),
+                  color: AppStyle.triadic1,
+                  icon: Icon(Icons.undo),
+                  onPressed: () {
+                    if (_clearSelected) {
+                      setState(() {
+                        objetos.addAll(futuro);
+                        futuro.clear();
+                        _clearSelected = false;
+                      });
+                    } else if (objetos.isNotEmpty) {
+                      setState(() {
+                        futuro.add(objetos.removeLast());
+                        _clearSelected = false;
+                      });
+                    }
+                  }),
+              IconButton(
+                color: AppStyle.triadic1,
+                icon: Icon(MdiIcons.minus),
+                onPressed: () => formaSelecionada = Forma.linha,
               ),
               IconButton(
-                tooltip: 'Rotacionar',
-                enableFeedback: true,
-                icon: Icon(Icons.rotate_right),
-                color: AppStyle.white,
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Digite quantos graus deseja rotacionar'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Text('Selecione a partir de qual ponto rotacionar'),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              SizedBox(
-                                width: 100,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'X',
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: dxController,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 40,
-                              ),
-                              SizedBox(
-                                width: 100,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Y',
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: dyController,
-                                ),
-                              ),
-                            ],
-                          ),
-                          TextFormField(
-                            keyboardType: TextInputType.number,
-                            controller: rotateController,
-                            decoration: InputDecoration(
-                              labelText: 'Angulo',
-                            ),
-                          ),
-                        ],
-                      ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: const Text('Cancelar'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: const Text('Confirmar'),
-                          onPressed: () {
-                            setState(() {});
-                            _rotate(
-                              num.parse(rotateController.text).toDouble(),
-                              pontoRotacao: Offset(
-                                num.parse(dxController.text).toDouble(),
-                                num.parse(dyController.text).toDouble(),
-                              ),
-                            );
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                color: AppStyle.triadic1,
+                icon: Icon(MdiIcons.triangleOutline),
+                onPressed: () => formaSelecionada = Forma.triangulo,
               ),
               IconButton(
-                tooltip: 'Linha de comando',
-                enableFeedback: true,
-                icon: Icon(Icons.chevron_right),
-                color: AppStyle.white,
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    String string;
-                    List<String> splitted;
-                    return AlertDialog(
-                      title: Text('Informe a operação desejada'),
-                      content: TextFormField(
-                        decoration: InputDecoration(
-                            hintText:
-                                'operacao [valor1 valor2 valor 3 valor 4]'),
-                        keyboardType: TextInputType.text,
-                        controller: commandController,
-                      ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: const Text('Cancelar'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: const Text('Confirmar'),
-                          onPressed: () => {
-                            string = commandController.text,
-                            splitted = string.split(" "),
-                            if (splitted[0] == 'rotate')
-                              {
-                                splitted.length > 2
-                                    ? _rotate(
-                                        num.parse(splitted[1]).toDouble(),
-                                        pontoRotacao: Offset(
-                                          num.parse(splitted[2]).toDouble(),
-                                          num.parse(splitted[3]).toDouble(),
-                                        ),
-                                      )
-                                    : _rotate(
-                                        num.parse(splitted[1]).toDouble()),
-                                Navigator.of(context).pop(),
-                              }
-                            else if (splitted[0] == 'translate')
-                              {
-                                _translate(num.parse(splitted[1]).toDouble(),
-                                    num.parse(splitted[2]).toDouble()),
-                                Navigator.of(context).pop(),
-                              }
-                            else if (splitted[0] == 'scale')
-                              {
-                                _scale(num.parse(splitted[1]).toDouble(),
-                                    num.parse(splitted[2]).toDouble()),
-                                Navigator.of(context).pop(),
-                              }
-                            else if (splitted[0] == 'zoom')
-                              {
-                                splitted[1] == '0'
-                                    ? zoom()
-                                    : zoom(
-                                        p1: Offset(
-                                          num.parse(splitted[1]).toDouble(),
-                                          num.parse(splitted[2]).toDouble(),
-                                        ),
-                                        p2: Offset(
-                                          num.parse(splitted[3]).toDouble(),
-                                          num.parse(splitted[4]).toDouble(),
-                                        ),
-                                      ),
-                              }
-                            else if (splitted[0] == 'select')
-                              {
-                                objetos[num.parse(splitted[1]).toInt()]
-                                        .selected =
-                                    !objetos[num.parse(splitted[1]).toInt()]
-                                        .selected,
-                              }
-                            else if (splitted[0] == 'selectall')
-                              {
-                                futuro.clear(),
-                                futuro.addAll(objetos),
-                                for (int i = 0; i < objetos.length; i++)
-                                  {objetos[i].selected = true}
-                              }
-                            else
-                              {
-                                AlertDialog(
-                                  title: Text('Operacao não reconhecida'),
-                                ),
-                              },
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                color: AppStyle.triadic1,
+                icon: Icon(MdiIcons.squareOutline),
+                onPressed: () => formaSelecionada = Forma.quadradro,
               ),
               IconButton(
-                icon: Icon(MdiIcons.arrowAll),
-                color: AppStyle.white,
-                onPressed: () {
-                  formaSelecionada = Forma.translacao;
-                  _scaffoldKey.currentState.showSnackBar(createSnack(
-                      "Selecione o primeiro ponto para fazer a translação"));
-                },
+                color: AppStyle.triadic1,
+                icon: Icon(MdiIcons.circleOutline),
+                onPressed: () => formaSelecionada = Forma.circulo,
               ),
               IconButton(
-                tooltip: 'Mudar escala',
-                enableFeedback: true,
-                icon: Icon(Icons.crop),
-                color: AppStyle.white,
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Digite a escala'),
-                      content: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Container(
-                                  width: 80,
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      labelText: 'X',
-                                      alignLabelWithHint: true,
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    controller: scaleXController,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Container(
-                                  width: 80,
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      labelText: 'Y',
-                                      alignLabelWithHint: true,
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    controller: scaleYController,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: const Text('Cancelar'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: const Text('Confirmar'),
-                          onPressed: () {
-                            _scale(num.parse(scaleXController.text).toDouble(),
-                                num.parse(scaleYController.text).toDouble());
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              IconButton(
-                tooltip: 'Zoom extend',
-                enableFeedback: true,
-                icon: Icon(Icons.zoom_out_map),
-                color: AppStyle.white,
-                onPressed: () {
-                  objetos.isNotEmpty ? zoom() : print('objetos zero');
-                },
-              ),
+                  color: AppStyle.triadic1,
+                  icon: Icon(Icons.redo),
+                  onPressed: () {
+                    if (futuro.isNotEmpty) {
+                      setState(() {
+                        objetos.add(futuro.removeLast());
+                      });
+                    }
+                  }),
             ],
           ),
         ),
@@ -998,28 +744,155 @@ class _DrawPageState extends State<DrawPage> {
           backgroundColor: AppStyle.primary,
           children: [
             SpeedDialChild(
-              label: 'Linha',
+                label: 'Rotacionar',
+                backgroundColor: AppStyle.triadic1,
+                child: Icon(Icons.rotate_right),
+                onTap: () {
+                  if (objetos.isEmpty) {
+                    showDialog<void>(
+                      context: _scaffoldKey.currentContext,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Ops!'),
+                          content:
+                              Text('Voce ainda nao inseriu elementos na tela'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: const Text('Ok'),
+                              onPressed: () {
+                                print(rotateController.text);
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    formaSelecionada = Forma.rotacao;
+                    _scaffoldKey.currentState.showSnackBar(
+                        createSnack("Selecione o ponto para fazer a rotação"));
+                  }
+                }),
+            SpeedDialChild(
+                label: 'Translação',
+                backgroundColor: AppStyle.triadic1,
+                child: Icon(MdiIcons.arrowAll),
+                onTap: () {
+                  if (objetos.isEmpty) {
+                    showDialog<void>(
+                      context: _scaffoldKey.currentContext,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Ops!'),
+                          content:
+                              Text('Voce ainda nao inseriu elementos na tela'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: const Text('Ok'),
+                              onPressed: () {
+                                print(rotateController.text);
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    formaSelecionada = Forma.translacao;
+                    _scaffoldKey.currentState.showSnackBar(createSnack(
+                        "Selecione o primeiro ponto para fazer a translação"));
+                  }
+                }),
+            SpeedDialChild(
+              label: 'Mudar escala',
               backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.minus),
-              onTap: () => formaSelecionada = Forma.linha,
+              child: Icon(Icons.crop),
+              onTap: () => showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Digite a escala'),
+                    content: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Container(
+                                width: 80,
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: 'X',
+                                    alignLabelWithHint: true,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  controller: scaleXController,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Container(
+                                width: 80,
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: 'Y',
+                                    alignLabelWithHint: true,
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  controller: scaleYController,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: const Text('Cancelar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      FlatButton(
+                        child: const Text('Confirmar'),
+                        onPressed: () {
+                          _scale(num.parse(scaleXController.text).toDouble(),
+                              num.parse(scaleYController.text).toDouble());
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
             SpeedDialChild(
-              label: 'Triangulo',
+              label: 'Zoom extend',
               backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.triangleOutline),
-              onTap: () => formaSelecionada = Forma.triangulo,
+              child: Icon(Icons.zoom_out_map),
+              onTap: () {
+                objetos.isNotEmpty ? zoom() : print('objetos zero');
+              },
             ),
             SpeedDialChild(
-              label: 'Quadrado',
+              label: 'Zoom',
               backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.squareOutline),
-              onTap: () => formaSelecionada = Forma.quadradro,
-            ),
-            SpeedDialChild(
-              label: 'Circulo',
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.circleOutline),
-              onTap: () => formaSelecionada = Forma.circulo,
+              child: Icon(Icons.zoom_in),
+              onTap: () {
+                _scaffoldKey.currentState.showSnackBar(
+                    createSnack("Selecione dois pontos para aplicar o zoom"));
+                formaSelecionada = Forma.nenhuma;
+              },
             ),
             SpeedDialChild(
               label: 'Deletar',
@@ -1137,6 +1010,53 @@ class _DrawPageState extends State<DrawPage> {
                           _localPosition.length == 1) {
                         _scaffoldKey.currentState.showSnackBar(createSnack(
                             "Selecione o segundo ponto para fazer a translação"));
+                      }
+
+                      if (formaSelecionada == Forma.rotacao &&
+                          _localPosition.length == 1) {
+                        showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                  'Digite quantos graus deseja rotacionar'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    controller: rotateController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Angulo',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Cancelar'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                FlatButton(
+                                  child: const Text('Confirmar'),
+                                  onPressed: () {
+                                    setState(() {});
+                                    _rotate(
+                                        num.parse(rotateController.text)
+                                            .toDouble(),
+                                        pontoRotacao: _localPosition[0]);
+                                    _localPosition = [];
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        formaSelecionada = objetos[objetos.length - 1].forma;
                       }
 
                       if (formaSelecionada == Forma.translacao &&
