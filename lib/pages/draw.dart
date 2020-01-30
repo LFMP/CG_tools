@@ -630,9 +630,33 @@ class _DrawPageState extends State<DrawPage> {
             ),
             IconButton(
               icon: Icon(Icons.zoom_in),
-              onPressed: () => {
-                formaSelecionada = Forma.nenhuma,
-              },
+              onPressed: () => objetos.isNotEmpty
+                  ? {
+                      formaSelecionada = Forma.nenhuma,
+                      _scaffoldKey.currentState.showSnackBar(
+                        createSnack(
+                            "Selecione o primeiro ponto para fazer o zoom"),
+                      ),
+                    }
+                  : showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Ops!'),
+                          content:
+                              Text('Voce ainda nao inseriu elementos na tela'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: const Text('Ok'),
+                              onPressed: () {
+                                print(rotateController.text);
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
             ),
             IconButton(
               icon: Icon(Icons.select_all),
@@ -711,7 +735,27 @@ class _DrawPageState extends State<DrawPage> {
                 enableFeedback: true,
                 icon: Icon(Icons.rotate_90_degrees_ccw),
                 color: AppStyle.white,
-                onPressed: () => _rotate(90),
+                onPressed: () => objetos.isNotEmpty
+                    ? _rotate(90)
+                    : showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Ops!'),
+                            content: Text(
+                                'Voce ainda nao inseriu elementos na tela'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Ok'),
+                                onPressed: () {
+                                  print(rotateController.text);
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
               ),
               IconButton(
                 tooltip: 'Rotacionar',
@@ -775,14 +819,33 @@ class _DrawPageState extends State<DrawPage> {
                         FlatButton(
                           child: const Text('Confirmar'),
                           onPressed: () {
-                            setState(() {});
-                            _rotate(
-                              num.parse(rotateController.text).toDouble(),
-                              pontoRotacao: Offset(
-                                num.parse(dxController.text).toDouble(),
-                                num.parse(dyController.text).toDouble(),
-                              ),
-                            );
+                            objetos.isNotEmpty
+                                ? _rotate(
+                                    num.parse(rotateController.text).toDouble(),
+                                    pontoRotacao: Offset(
+                                      num.parse(dxController.text).toDouble(),
+                                      num.parse(dyController.text).toDouble(),
+                                    ),
+                                  )
+                                : showDialog<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Ops!'),
+                                        content: Text(
+                                            'Voce ainda nao inseriu elementos na tela'),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: const Text('Ok'),
+                                            onPressed: () {
+                                              print(rotateController.text);
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
                             Navigator.of(context).pop();
                           },
                         ),
@@ -893,83 +956,128 @@ class _DrawPageState extends State<DrawPage> {
               IconButton(
                 icon: Icon(MdiIcons.arrowAll),
                 color: AppStyle.white,
-                onPressed: () {
-                  formaSelecionada = Forma.translacao;
-                  _scaffoldKey.currentState.showSnackBar(createSnack(
-                      "Selecione o primeiro ponto para fazer a translação"));
-                },
+                onPressed: () => objetos.isNotEmpty
+                    ? {
+                        formaSelecionada = Forma.translacao,
+                        _scaffoldKey.currentState.showSnackBar(
+                          createSnack(
+                              "Selecione o primeiro ponto para fazer a translação"),
+                        ),
+                      }
+                    : showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Ops!'),
+                            content: Text(
+                                'Voce ainda nao inseriu elementos na tela'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Ok'),
+                                onPressed: () {
+                                  print(rotateController.text);
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
               ),
               IconButton(
                 tooltip: 'Mudar escala',
                 enableFeedback: true,
                 icon: Icon(Icons.crop),
                 color: AppStyle.white,
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Digite a escala'),
-                      content: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                onPressed: () => objetos.isNotEmpty
+                    ? showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Digite a escala'),
+                            content: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
-                                Container(
-                                  width: 80,
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      labelText: 'X',
-                                      alignLabelWithHint: true,
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    controller: scaleXController,
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Container(
+                                        width: 80,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: 'X',
+                                            alignLabelWithHint: true,
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          controller: scaleXController,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Container(
+                                        width: 80,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: 'Y',
+                                            alignLabelWithHint: true,
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          controller: scaleYController,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Container(
-                                  width: 80,
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                      labelText: 'Y',
-                                      alignLabelWithHint: true,
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    controller: scaleYController,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Cancelar'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              FlatButton(
+                                child: const Text('Confirmar'),
+                                onPressed: () {
+                                  _scale(
+                                      num.parse(scaleXController.text)
+                                          .toDouble(),
+                                      num.parse(scaleYController.text)
+                                          .toDouble());
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      )
+                    : showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Ops!'),
+                            content: Text(
+                                'Voce ainda nao inseriu elementos na tela'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Ok'),
+                                onPressed: () {
+                                  print(rotateController.text);
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: const Text('Cancelar'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: const Text('Confirmar'),
-                          onPressed: () {
-                            _scale(num.parse(scaleXController.text).toDouble(),
-                                num.parse(scaleYController.text).toDouble());
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
               ),
               IconButton(
                 tooltip: 'Zoom extend',
@@ -977,7 +1085,27 @@ class _DrawPageState extends State<DrawPage> {
                 icon: Icon(Icons.zoom_out_map),
                 color: AppStyle.white,
                 onPressed: () {
-                  objetos.isNotEmpty ? zoom() : print('objetos zero');
+                  objetos.isNotEmpty
+                      ? zoom()
+                      : showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Ops!'),
+                              content: Text(
+                                  'Voce ainda nao inseriu elementos na tela'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Ok'),
+                                  onPressed: () {
+                                    print(rotateController.text);
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
                 },
               ),
             ],
@@ -1122,6 +1250,13 @@ class _DrawPageState extends State<DrawPage> {
                           _localPosition = [];
                           futuro.clear();
                         });
+                      }
+
+                      if (formaSelecionada == Forma.nenhuma &&
+                          _localPosition.length == 1 &&
+                          objetos.isNotEmpty) {
+                        _scaffoldKey.currentState.showSnackBar(createSnack(
+                            "Selecione o segundo ponto para fazer o zoom"));
                       }
 
                       if (formaSelecionada == Forma.nenhuma &&
