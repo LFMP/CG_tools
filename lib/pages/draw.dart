@@ -673,7 +673,7 @@ class _DrawPageState extends State<DrawPage> {
                 if (result == opcoes.undo) {
                   if (operacaoSelected) {
                     setState(() {
-                      objetos.clear();
+                      objetos = [];
                       objetos.addAll(futuro);
                       futuro.clear();
                       operacaoSelected = false;
@@ -684,7 +684,7 @@ class _DrawPageState extends State<DrawPage> {
                       futuro.clear();
                       _clearSelected = false;
                     });
-                  } else if (objetos.isNotEmpty) {
+                  } else if (objetos.isNotEmpty && !operacaoSelected) {
                     setState(() {
                       futuro.add(objetos.removeLast());
                       _clearSelected = false;
