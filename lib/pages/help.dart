@@ -136,7 +136,8 @@ Widget ajudaContexto() {
               thickness: 2.0,
               color: AppStyle.primary,
             ),
-            Text('aaaaaaaaaa'),
+            Text('Para realizar uma translacao dos objetos selecione toque o' +
+                'quarto botao da barra inferior e selecione dois pontos na area delemitada.'),
             Divider(
               thickness: 2.0,
               color: AppStyle.primary,
@@ -146,7 +147,10 @@ Widget ajudaContexto() {
               thickness: 2.0,
               color: AppStyle.primary,
             ),
-            Text('aaaaaaaaaa'),
+            Text(
+                'Para realizar a mudanca de escala nos objetos selecionados pressione o quinto ' +
+                    'botao na barra inferior, uma janela ira aparecer. ' +
+                    'Nela devem ser preenchidos as novas escalas em X e Y.'),
             Divider(
               thickness: 2.0,
               color: AppStyle.primary,
@@ -156,7 +160,9 @@ Widget ajudaContexto() {
               thickness: 2.0,
               color: AppStyle.primary,
             ),
-            Text('aaaaaaaaaa'),
+            Text(
+                'Para remover todas as figuras desenhadas basta selecionar a opcao ' +
+                    '"Limpar tela" no ultimo botao na barra superior.'),
             Divider(
               thickness: 2.0,
               color: AppStyle.primary,
@@ -166,7 +172,8 @@ Widget ajudaContexto() {
               thickness: 2.0,
               color: AppStyle.primary,
             ),
-            Text('aaaaaaaaaa'),
+            Text('Para desfazer uma operacao basta selecionar a opcao' +
+                '"Desfazer" no ultimo botao na barra superior.'),
             Divider(
               thickness: 2.0,
               color: AppStyle.primary,
@@ -176,7 +183,8 @@ Widget ajudaContexto() {
               thickness: 2.0,
               color: AppStyle.primary,
             ),
-            Text('aaaaaaaaaa'),
+            Text('Para refazer uma operacao basta selecionar a opcao' +
+                '"Desfazer" no ultimo botao na barra superior.'),
             Divider(
               thickness: 2.0,
               color: AppStyle.primary,
@@ -186,11 +194,88 @@ Widget ajudaContexto() {
               thickness: 2.0,
               color: AppStyle.primary,
             ),
-            Text('aaaaaaaaaa'),
+            Text('Para remover os objetos selecionados toque no botao de lixeira ' +
+                'encontrada ao pressionar o botao flutuante no canto inferior direito.'),
           ],
         ),
         ExpansionTile(
           title: Text('Linha de comando'),
+          children: <Widget>[
+            Text(
+                'Os parametros entre colchetes sao opcionais, os colchetes nao devem ser digitados'),
+            Table(
+              border: TableBorder(
+                horizontalInside: BorderSide(
+                  width: 2.0,
+                  color: Colors.grey,
+                ),
+                bottom: BorderSide(
+                  width: 2.0,
+                  color: Colors.grey,
+                ),
+              ),
+              children: [
+                TableRow(
+                  children: [
+                    Text(
+                      'Operacao',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Comando',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text('Rotacao'),
+                    Text('rotate degrees [pX pY]'),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text('Translacao'),
+                    Text('translate pX pY'),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text('Mudar escala'),
+                    Text('scale sX sY'),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text('Zoom'),
+                    Text('zoom p1X p1Y p2X p2Y'),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text('Zoom extend'),
+                    Text('zoom 0'),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text('Selecionar'),
+                    Text('select indexFigura'),
+                  ],
+                ),
+                TableRow(
+                  children: [
+                    Text('Selecionar tudo'),
+                    Text('selectAll'),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),
