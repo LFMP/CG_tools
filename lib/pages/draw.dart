@@ -38,6 +38,7 @@ class _DrawPageState extends State<DrawPage> {
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
   bool _ajudaSelecionada = false;
+  bool operacaoSelected = false;
   final GlobalKey cardKey = GlobalKey();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -670,7 +671,14 @@ class _DrawPageState extends State<DrawPage> {
             PopupMenuButton<opcoes>(
               onSelected: (opcoes result) {
                 if (result == opcoes.undo) {
-                  if (_clearSelected) {
+                  if (operacaoSelected) {
+                    setState(() {
+                      objetos.clear();
+                      objetos.addAll(futuro);
+                      futuro.clear();
+                      operacaoSelected = false;
+                    });
+                  } else if (_clearSelected) {
                     setState(() {
                       objetos.addAll(futuro);
                       futuro.clear();
@@ -736,7 +744,14 @@ class _DrawPageState extends State<DrawPage> {
                 icon: Icon(Icons.rotate_90_degrees_ccw),
                 color: AppStyle.white,
                 onPressed: () => objetos.isNotEmpty
-                    ? _rotate(90)
+                    ? {
+                        setState(() {
+                          futuro.clear();
+                          futuro.addAll(objetos);
+                          operacaoSelected = true;
+                        }),
+                        _rotate(90),
+                      }
                     : showDialog<void>(
                         context: context,
                         builder: (BuildContext context) {
@@ -748,7 +763,6 @@ class _DrawPageState extends State<DrawPage> {
                               FlatButton(
                                 child: const Text('Ok'),
                                 onPressed: () {
-                                  print(rotateController.text);
                                   Navigator.of(context).pop();
                                 },
                               ),
@@ -762,97 +776,102 @@ class _DrawPageState extends State<DrawPage> {
                 enableFeedback: true,
                 icon: Icon(Icons.rotate_right),
                 color: AppStyle.white,
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Digite quantos graus deseja rotacionar'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Text('Selecione a partir de qual ponto rotacionar'),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              SizedBox(
-                                width: 100,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'X',
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: dxController,
+                onPressed: () => objetos.isNotEmpty
+                    ? showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title:
+                                Text('Digite quantos graus deseja rotacionar'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Text(
+                                    'Selecione a partir de qual ponto rotacionar'),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    SizedBox(
+                                      width: 100,
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: 'X',
+                                        ),
+                                        keyboardType: TextInputType.number,
+                                        controller: dxController,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 40,
+                                    ),
+                                    SizedBox(
+                                      width: 100,
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: 'Y',
+                                        ),
+                                        keyboardType: TextInputType.number,
+                                        controller: dyController,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              SizedBox(
-                                width: 40,
-                              ),
-                              SizedBox(
-                                width: 100,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Y',
-                                  ),
+                                TextFormField(
                                   keyboardType: TextInputType.number,
-                                  controller: dyController,
+                                  controller: rotateController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Angulo',
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          TextFormField(
-                            keyboardType: TextInputType.number,
-                            controller: rotateController,
-                            decoration: InputDecoration(
-                              labelText: 'Angulo',
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: const Text('Cancelar'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: const Text('Confirmar'),
-                          onPressed: () {
-                            objetos.isNotEmpty
-                                ? _rotate(
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Cancelar'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              FlatButton(
+                                child: const Text('Confirmar'),
+                                onPressed: () => {
+                                  operacaoSelected = true,
+                                  futuro.clear(),
+                                  futuro.addAll(objetos),
+                                  _rotate(
                                     num.parse(rotateController.text).toDouble(),
                                     pontoRotacao: Offset(
                                       num.parse(dxController.text).toDouble(),
                                       num.parse(dyController.text).toDouble(),
                                     ),
-                                  )
-                                : showDialog<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text('Ops!'),
-                                        content: Text(
-                                            'Voce ainda nao inseriu elementos na tela'),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: const Text('Ok'),
-                                            onPressed: () {
-                                              print(rotateController.text);
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                                  ),
+                                  Navigator.of(context).pop(),
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      )
+                    : showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Ops!'),
+                            content: Text(
+                                'Voce ainda nao inseriu elementos na tela'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Ok'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
               ),
               IconButton(
                 tooltip: 'Linha de comando',
@@ -975,7 +994,6 @@ class _DrawPageState extends State<DrawPage> {
                               FlatButton(
                                 child: const Text('Ok'),
                                 onPressed: () {
-                                  print(rotateController.text);
                                   Navigator.of(context).pop();
                                 },
                               ),
@@ -1047,6 +1065,9 @@ class _DrawPageState extends State<DrawPage> {
                               FlatButton(
                                 child: const Text('Confirmar'),
                                 onPressed: () {
+                                  operacaoSelected = true;
+                                  futuro.clear();
+                                  futuro.addAll(objetos);
                                   _scale(
                                       num.parse(scaleXController.text)
                                           .toDouble(),
@@ -1084,29 +1105,31 @@ class _DrawPageState extends State<DrawPage> {
                 enableFeedback: true,
                 icon: Icon(Icons.zoom_out_map),
                 color: AppStyle.white,
-                onPressed: () {
-                  objetos.isNotEmpty
-                      ? zoom()
-                      : showDialog<void>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Ops!'),
-                              content: Text(
-                                  'Voce ainda nao inseriu elementos na tela'),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: const Text('Ok'),
-                                  onPressed: () {
-                                    print(rotateController.text);
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                },
+                onPressed: () => objetos.isNotEmpty
+                    ? {
+                        operacaoSelected = true,
+                        futuro.clear(),
+                        futuro.addAll(objetos),
+                        zoom(),
+                      }
+                    : showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Ops!'),
+                            content: Text(
+                                'Voce ainda nao inseriu elementos na tela'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Ok'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -1262,6 +1285,9 @@ class _DrawPageState extends State<DrawPage> {
                       if (formaSelecionada == Forma.nenhuma &&
                           _localPosition.length == 2) {
                         setState(() {
+                          futuro.clear();
+                          futuro.addAll(objetos);
+                          operacaoSelected = true;
                           zoomClickArea = _localPosition;
                           zoom(p1: zoomClickArea[0], p2: zoomClickArea[1]);
                           _localPosition = [];
@@ -1297,6 +1323,7 @@ class _DrawPageState extends State<DrawPage> {
                         }
 
                         setState(() {
+                          operacaoSelected = true;
                           _translate(x, y);
                           _localPosition = [];
                         });
