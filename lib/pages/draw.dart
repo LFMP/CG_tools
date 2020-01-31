@@ -777,8 +777,8 @@ class _DrawPageState extends State<DrawPage> {
                             futuro.clear();
                             futuro.addAll(objetos);
                             operacaoSelected = true;
+                            _rotate(90);
                           }),
-                          _rotate(90),
                         }
                       : showDialog<void>(
                           context: context,
