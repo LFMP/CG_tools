@@ -120,10 +120,5 @@ class MagicalPaint extends CustomPainter {
   }
 
   @override
-  bool hitTest(Offset position) {
-    return super.hitTest(position);
-  }
-
-  @override
   bool shouldRepaint(MagicalPaint oldDelegate) => true;
 }

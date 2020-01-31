@@ -8,6 +8,7 @@ import 'package:cg_tools/utils/appstyle.dart';
 import 'package:cg_tools/utils/figura.dart';
 import 'package:cg_tools/utils/magicalpaint.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -41,6 +42,23 @@ class _DrawPageState extends State<DrawPage> {
   bool operacaoSelected = false;
   final GlobalKey cardKey = GlobalKey();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) => {
+        if (formaSelecionada != Forma.nenhuma &&
+            formaSelecionada != Forma.translacao &&
+            _localPosition.isEmpty)
+          {
+            _scaffoldKey.currentState.showSnackBar(
+              createSnack("Selecione o primeiro ponto para desenhar"),
+            ),
+          },
+      },
+    );
+  }
 
   void zoom({Offset p1, Offset p2}) {
     double xMin;
@@ -607,479 +625,38 @@ class _DrawPageState extends State<DrawPage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DrawBloc, DrawStates>(
-        builder: (BuildContext context, DrawStates state) {
-      return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          backgroundColor: AppStyle.primary,
-          centerTitle: true,
-          title: Text('CG tools'),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.help),
-              onPressed: () => _ajudaSelecionada
-                  ? {
-                      BlocProvider.of<DrawBloc>(context)
-                          .add(CanvasModalButtonPressed()),
-                      _ajudaSelecionada = false,
-                    }
-                  : {
-                      BlocProvider.of<DrawBloc>(context)
-                          .add(AjudaModalButtonPressed()),
-                      _ajudaSelecionada = true,
-                    },
-            ),
-            IconButton(
-              icon: Icon(Icons.zoom_in),
-              onPressed: () => objetos.isNotEmpty
-                  ? {
-                      formaSelecionada = Forma.nenhuma,
-                      _scaffoldKey.currentState.showSnackBar(
-                        createSnack(
-                            "Selecione o primeiro ponto para fazer o zoom"),
-                      ),
-                    }
-                  : showDialog<void>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Ops!'),
-                          content:
-                              Text('Voce ainda nao inseriu elementos na tela'),
-                          actions: <Widget>[
-                            FlatButton(
-                              child: const Text('Ok'),
-                              onPressed: () {
-                                print(rotateController.text);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-            ),
-            IconButton(
-              icon: Icon(Icons.select_all),
-              color: AppStyle.white,
-              onPressed: () {
-                BlocProvider.of<DrawBloc>(context)
-                    .add(SelectModalButtonPressed());
-                _selectModalSheet(context, objetos);
-              },
-            ),
-            PopupMenuButton<opcoes>(
-              onSelected: (opcoes result) {
-                if (result == opcoes.undo) {
-                  if (operacaoSelected) {
-                    setState(() {
-                      objetos = [];
-                      objetos.addAll(futuro);
-                      futuro.clear();
-                      operacaoSelected = false;
-                    });
-                  } else if (_clearSelected) {
-                    setState(() {
-                      objetos.addAll(futuro);
-                      futuro.clear();
-                      _clearSelected = false;
-                    });
-                  } else if (objetos.isNotEmpty && !operacaoSelected) {
-                    setState(() {
-                      futuro.add(objetos.removeLast());
-                      _clearSelected = false;
-                    });
-                  }
-                } else if (result == opcoes.redo && futuro.isNotEmpty) {
-                  setState(() {
-                    objetos.add(futuro.removeLast());
-                  });
-                } else if (result == opcoes.clear) {
-                  setState(() {
-                    futuro.addAll(objetos);
-                    objetos.clear();
-                    _clearSelected = true;
-                  });
-                } else if (result == opcoes.selectAll) {
-                  setState(() {
-                    futuro.clear();
-                    futuro.addAll(objetos);
-                    for (int i = 0; i < objetos.length; i++) {
-                      objetos[i].selected = true;
-                    }
-                  });
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<opcoes>>[
-                const PopupMenuItem<opcoes>(
-                  value: opcoes.undo,
-                  child: Text('Desfazer'),
-                ),
-                const PopupMenuItem<opcoes>(
-                  value: opcoes.redo,
-                  child: Text('Refazer'),
-                ),
-                const PopupMenuItem<opcoes>(
-                  value: opcoes.clear,
-                  child: Text('Limpar tela'),
-                ),
-                const PopupMenuItem<opcoes>(
-                  value: opcoes.selectAll,
-                  child: Text('Selecionar tudo'),
-                ),
-              ],
-            )
-          ],
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        bottomNavigationBar: BottomAppBar(
-          color: AppStyle.primary,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
+      builder: (BuildContext context, DrawStates state) {
+        return Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            backgroundColor: AppStyle.primary,
+            centerTitle: false,
+            title: Text('CG tools'),
+            actions: <Widget>[
               IconButton(
-                tooltip: 'Rotacionar 90',
-                enableFeedback: true,
-                icon: Icon(Icons.rotate_90_degrees_ccw),
-                color: AppStyle.white,
-                onPressed: () => objetos.isNotEmpty
+                icon: Icon(Icons.help),
+                onPressed: () => _ajudaSelecionada
                     ? {
-                        setState(() {
-                          futuro.clear();
-                          futuro.addAll(objetos);
-                          operacaoSelected = true;
-                        }),
-                        _rotate(90),
+                        BlocProvider.of<DrawBloc>(context)
+                            .add(CanvasModalButtonPressed()),
+                        _ajudaSelecionada = false,
                       }
-                    : showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Ops!'),
-                            content: Text(
-                                'Voce ainda nao inseriu elementos na tela'),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: const Text('Ok'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                    : {
+                        BlocProvider.of<DrawBloc>(context)
+                            .add(AjudaModalButtonPressed()),
+                        _ajudaSelecionada = true,
+                      },
               ),
               IconButton(
-                tooltip: 'Rotacionar',
-                enableFeedback: true,
-                icon: Icon(Icons.rotate_right),
-                color: AppStyle.white,
-                onPressed: () => objetos.isNotEmpty
-                    ? showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title:
-                                Text('Digite quantos graus deseja rotacionar'),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Text(
-                                    'Selecione a partir de qual ponto rotacionar'),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 100,
-                                      child: TextFormField(
-                                        decoration: InputDecoration(
-                                          labelText: 'X',
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        controller: dxController,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 40,
-                                    ),
-                                    SizedBox(
-                                      width: 100,
-                                      child: TextFormField(
-                                        decoration: InputDecoration(
-                                          labelText: 'Y',
-                                        ),
-                                        keyboardType: TextInputType.number,
-                                        controller: dyController,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  controller: rotateController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Angulo',
-                                  ),
-                                ),
-                              ],
-                            ),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: const Text('Cancelar'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                              FlatButton(
-                                child: const Text('Confirmar'),
-                                onPressed: () => {
-                                  operacaoSelected = true,
-                                  futuro.clear(),
-                                  futuro.addAll(objetos),
-                                  _rotate(
-                                    num.parse(rotateController.text).toDouble(),
-                                    pontoRotacao: Offset(
-                                      num.parse(dxController.text).toDouble(),
-                                      num.parse(dyController.text).toDouble(),
-                                    ),
-                                  ),
-                                  Navigator.of(context).pop(),
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      )
-                    : showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Ops!'),
-                            content: Text(
-                                'Voce ainda nao inseriu elementos na tela'),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: const Text('Ok'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-              ),
-              IconButton(
-                tooltip: 'Linha de comando',
-                enableFeedback: true,
-                icon: Icon(Icons.chevron_right),
-                color: AppStyle.white,
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    String string;
-                    List<String> splitted;
-                    return AlertDialog(
-                      title: Text('Informe a operação desejada'),
-                      content: TextFormField(
-                        decoration: InputDecoration(
-                            hintText:
-                                'operacao [valor1 valor2 valor 3 valor 4]'),
-                        keyboardType: TextInputType.text,
-                        controller: commandController,
-                      ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: const Text('Cancelar'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: const Text('Confirmar'),
-                          onPressed: () => {
-                            string = commandController.text,
-                            splitted = string.split(" "),
-                            if (splitted[0] == 'rotate')
-                              {
-                                splitted.length > 2
-                                    ? _rotate(
-                                        num.parse(splitted[1]).toDouble(),
-                                        pontoRotacao: Offset(
-                                          num.parse(splitted[2]).toDouble(),
-                                          num.parse(splitted[3]).toDouble(),
-                                        ),
-                                      )
-                                    : _rotate(
-                                        num.parse(splitted[1]).toDouble()),
-                                Navigator.of(context).pop(),
-                              }
-                            else if (splitted[0] == 'translate')
-                              {
-                                _translate(num.parse(splitted[1]).toDouble(),
-                                    num.parse(splitted[2]).toDouble()),
-                                Navigator.of(context).pop(),
-                              }
-                            else if (splitted[0] == 'scale')
-                              {
-                                _scale(num.parse(splitted[1]).toDouble(),
-                                    num.parse(splitted[2]).toDouble()),
-                                Navigator.of(context).pop(),
-                              }
-                            else if (splitted[0] == 'zoom')
-                              {
-                                splitted[1] == '0'
-                                    ? zoom()
-                                    : zoom(
-                                        p1: Offset(
-                                          num.parse(splitted[1]).toDouble(),
-                                          num.parse(splitted[2]).toDouble(),
-                                        ),
-                                        p2: Offset(
-                                          num.parse(splitted[3]).toDouble(),
-                                          num.parse(splitted[4]).toDouble(),
-                                        ),
-                                      ),
-                              }
-                            else if (splitted[0] == 'select')
-                              {
-                                objetos[num.parse(splitted[1]).toInt()]
-                                        .selected =
-                                    !objetos[num.parse(splitted[1]).toInt()]
-                                        .selected,
-                              }
-                            else if (splitted[0] == 'selectall')
-                              {
-                                futuro.clear(),
-                                futuro.addAll(objetos),
-                                for (int i = 0; i < objetos.length; i++)
-                                  {objetos[i].selected = true}
-                              }
-                            else
-                              {
-                                AlertDialog(
-                                  title: Text('Operacao não reconhecida'),
-                                ),
-                              },
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              IconButton(
-                icon: Icon(MdiIcons.arrowAll),
-                color: AppStyle.white,
+                icon: Icon(Icons.zoom_in),
                 onPressed: () => objetos.isNotEmpty
                     ? {
-                        formaSelecionada = Forma.translacao,
+                        formaSelecionada = Forma.nenhuma,
                         _scaffoldKey.currentState.showSnackBar(
                           createSnack(
-                              "Selecione o primeiro ponto para fazer a translação"),
+                              "Selecione o primeiro ponto para fazer o zoom"),
                         ),
                       }
-                    : showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Ops!'),
-                            content: Text(
-                                'Voce ainda nao inseriu elementos na tela'),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: const Text('Ok'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-              ),
-              IconButton(
-                tooltip: 'Mudar escala',
-                enableFeedback: true,
-                icon: Icon(Icons.crop),
-                color: AppStyle.white,
-                onPressed: () => objetos.isNotEmpty
-                    ? showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Digite a escala'),
-                            content: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Container(
-                                        width: 80,
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            labelText: 'X',
-                                            alignLabelWithHint: true,
-                                          ),
-                                          keyboardType: TextInputType.number,
-                                          controller: scaleXController,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Container(
-                                        width: 80,
-                                        child: TextFormField(
-                                          decoration: InputDecoration(
-                                            labelText: 'Y',
-                                            alignLabelWithHint: true,
-                                          ),
-                                          keyboardType: TextInputType.number,
-                                          controller: scaleYController,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: const Text('Cancelar'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                              FlatButton(
-                                child: const Text('Confirmar'),
-                                onPressed: () {
-                                  operacaoSelected = true;
-                                  futuro.clear();
-                                  futuro.addAll(objetos);
-                                  _scale(
-                                      num.parse(scaleXController.text)
-                                          .toDouble(),
-                                      num.parse(scaleYController.text)
-                                          .toDouble());
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      )
                     : showDialog<void>(
                         context: context,
                         builder: (BuildContext context) {
@@ -1101,244 +678,722 @@ class _DrawPageState extends State<DrawPage> {
                       ),
               ),
               IconButton(
-                tooltip: 'Zoom extend',
-                enableFeedback: true,
-                icon: Icon(Icons.zoom_out_map),
+                icon: Icon(Icons.select_all),
                 color: AppStyle.white,
-                onPressed: () => objetos.isNotEmpty
-                    ? {
-                        operacaoSelected = true,
-                        futuro.clear(),
-                        futuro.addAll(objetos),
-                        zoom(),
+                onPressed: () {
+                  BlocProvider.of<DrawBloc>(context)
+                      .add(SelectModalButtonPressed());
+                  _selectModalSheet(context, objetos);
+                },
+              ),
+              PopupMenuButton<opcoes>(
+                onSelected: (opcoes result) {
+                  if (result == opcoes.undo) {
+                    if (operacaoSelected) {
+                      setState(() {
+                        objetos = [];
+                        objetos.addAll(futuro);
+                        futuro.clear();
+                        operacaoSelected = false;
+                      });
+                    } else if (_clearSelected) {
+                      setState(() {
+                        objetos.addAll(futuro);
+                        futuro.clear();
+                        _clearSelected = false;
+                      });
+                    } else if (objetos.isNotEmpty && !operacaoSelected) {
+                      setState(() {
+                        futuro.add(objetos.removeLast());
+                        _clearSelected = false;
+                      });
+                    }
+                  } else if (result == opcoes.redo && futuro.isNotEmpty) {
+                    setState(() {
+                      objetos.add(futuro.removeLast());
+                    });
+                  } else if (result == opcoes.clear) {
+                    setState(() {
+                      futuro.addAll(objetos);
+                      objetos.clear();
+                      _clearSelected = true;
+                    });
+                  } else if (result == opcoes.selectAll) {
+                    setState(() {
+                      futuro.clear();
+                      futuro.addAll(objetos);
+                      for (int i = 0; i < objetos.length; i++) {
+                        objetos[i].selected = true;
                       }
-                    : showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Ops!'),
-                            content: Text(
-                                'Voce ainda nao inseriu elementos na tela'),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: const Text('Ok'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
+                    });
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<opcoes>>[
+                  const PopupMenuItem<opcoes>(
+                    value: opcoes.undo,
+                    child: Text('Desfazer'),
+                  ),
+                  const PopupMenuItem<opcoes>(
+                    value: opcoes.redo,
+                    child: Text('Refazer'),
+                  ),
+                  const PopupMenuItem<opcoes>(
+                    value: opcoes.clear,
+                    child: Text('Limpar tela'),
+                  ),
+                  const PopupMenuItem<opcoes>(
+                    value: opcoes.selectAll,
+                    child: Text('Selecionar tudo'),
+                  ),
+                ],
+              )
+            ],
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          bottomNavigationBar: BottomAppBar(
+            color: AppStyle.primary,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                IconButton(
+                  tooltip: 'Rotacionar 90',
+                  enableFeedback: true,
+                  icon: Icon(Icons.rotate_90_degrees_ccw),
+                  color: AppStyle.white,
+                  onPressed: () => objetos.isNotEmpty
+                      ? {
+                          setState(() {
+                            futuro.clear();
+                            futuro.addAll(objetos);
+                            operacaoSelected = true;
+                          }),
+                          _rotate(90),
+                        }
+                      : showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Ops!'),
+                              content: Text(
+                                  'Voce ainda nao inseriu elementos na tela'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Ok'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                ),
+                IconButton(
+                  tooltip: 'Rotacionar',
+                  enableFeedback: true,
+                  icon: Icon(Icons.rotate_right),
+                  color: AppStyle.white,
+                  onPressed: () => objetos.isNotEmpty
+                      ? showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                  'Digite quantos graus deseja rotacionar'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Text(
+                                      'Selecione a partir de qual ponto rotacionar'),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      SizedBox(
+                                        width: 100,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: 'X',
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          controller: dxController,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 40,
+                                      ),
+                                      SizedBox(
+                                        width: 100,
+                                        child: TextFormField(
+                                          decoration: InputDecoration(
+                                            labelText: 'Y',
+                                          ),
+                                          keyboardType: TextInputType.number,
+                                          controller: dyController,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    controller: rotateController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Angulo',
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          );
-                        },
-                      ),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Cancelar'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                FlatButton(
+                                  child: const Text('Confirmar'),
+                                  onPressed: () => {
+                                    operacaoSelected = true,
+                                    futuro.clear(),
+                                    futuro.addAll(objetos),
+                                    _rotate(
+                                      num.parse(rotateController.text)
+                                          .toDouble(),
+                                      pontoRotacao: Offset(
+                                        num.parse(dxController.text).toDouble(),
+                                        num.parse(dyController.text).toDouble(),
+                                      ),
+                                    ),
+                                    Navigator.of(context).pop(),
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                      : showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Ops!'),
+                              content: Text(
+                                  'Voce ainda nao inseriu elementos na tela'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Ok'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                ),
+                IconButton(
+                  tooltip: 'Linha de comando',
+                  enableFeedback: true,
+                  icon: Icon(Icons.chevron_right),
+                  color: AppStyle.white,
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      String string;
+                      List<String> splitted;
+                      return AlertDialog(
+                        title: Text('Informe a operação desejada'),
+                        content: TextFormField(
+                          decoration: InputDecoration(
+                              hintText:
+                                  'operacao [valor1 valor2 valor 3 valor 4]'),
+                          keyboardType: TextInputType.text,
+                          controller: commandController,
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: const Text('Cancelar'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          FlatButton(
+                            child: const Text('Confirmar'),
+                            onPressed: () => {
+                              string = commandController.text,
+                              splitted = string.split(" "),
+                              if (splitted[0] == 'rotate')
+                                {
+                                  splitted.length > 2
+                                      ? _rotate(
+                                          num.parse(splitted[1]).toDouble(),
+                                          pontoRotacao: Offset(
+                                            num.parse(splitted[2]).toDouble(),
+                                            num.parse(splitted[3]).toDouble(),
+                                          ),
+                                        )
+                                      : _rotate(
+                                          num.parse(splitted[1]).toDouble()),
+                                  Navigator.of(context).pop(),
+                                }
+                              else if (splitted[0] == 'translate')
+                                {
+                                  _translate(num.parse(splitted[1]).toDouble(),
+                                      num.parse(splitted[2]).toDouble()),
+                                  Navigator.of(context).pop(),
+                                }
+                              else if (splitted[0] == 'scale')
+                                {
+                                  _scale(num.parse(splitted[1]).toDouble(),
+                                      num.parse(splitted[2]).toDouble()),
+                                  Navigator.of(context).pop(),
+                                }
+                              else if (splitted[0] == 'zoom')
+                                {
+                                  splitted[1] == '0'
+                                      ? zoom()
+                                      : zoom(
+                                          p1: Offset(
+                                            num.parse(splitted[1]).toDouble(),
+                                            num.parse(splitted[2]).toDouble(),
+                                          ),
+                                          p2: Offset(
+                                            num.parse(splitted[3]).toDouble(),
+                                            num.parse(splitted[4]).toDouble(),
+                                          ),
+                                        ),
+                                }
+                              else if (splitted[0] == 'select')
+                                {
+                                  objetos[num.parse(splitted[1]).toInt()]
+                                          .selected =
+                                      !objetos[num.parse(splitted[1]).toInt()]
+                                          .selected,
+                                }
+                              else if (splitted[0] == 'selectall')
+                                {
+                                  futuro.clear(),
+                                  futuro.addAll(objetos),
+                                  for (int i = 0; i < objetos.length; i++)
+                                    {objetos[i].selected = true}
+                                }
+                              else
+                                {
+                                  AlertDialog(
+                                    title: Text('Operacao não reconhecida'),
+                                  ),
+                                },
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(MdiIcons.arrowAll),
+                  color: AppStyle.white,
+                  onPressed: () => objetos.isNotEmpty
+                      ? {
+                          formaSelecionada = Forma.translacao,
+                          _scaffoldKey.currentState.showSnackBar(
+                            createSnack(
+                                "Selecione o primeiro ponto para fazer a translação"),
+                          ),
+                        }
+                      : showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Ops!'),
+                              content: Text(
+                                  'Voce ainda nao inseriu elementos na tela'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Ok'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                ),
+                IconButton(
+                  tooltip: 'Mudar escala',
+                  enableFeedback: true,
+                  icon: Icon(Icons.crop),
+                  color: AppStyle.white,
+                  onPressed: () => objetos.isNotEmpty
+                      ? showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Digite a escala'),
+                              content: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Container(
+                                          width: 80,
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                              labelText: 'X',
+                                              alignLabelWithHint: true,
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            controller: scaleXController,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Container(
+                                          width: 80,
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                              labelText: 'Y',
+                                              alignLabelWithHint: true,
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            controller: scaleYController,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Cancelar'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                FlatButton(
+                                  child: const Text('Confirmar'),
+                                  onPressed: () {
+                                    operacaoSelected = true;
+                                    futuro.clear();
+                                    futuro.addAll(objetos);
+                                    _scale(
+                                        num.parse(scaleXController.text)
+                                            .toDouble(),
+                                        num.parse(scaleYController.text)
+                                            .toDouble());
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                      : showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Ops!'),
+                              content: Text(
+                                  'Voce ainda nao inseriu elementos na tela'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Ok'),
+                                  onPressed: () {
+                                    print(rotateController.text);
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                ),
+                IconButton(
+                  tooltip: 'Zoom extend',
+                  enableFeedback: true,
+                  icon: Icon(Icons.zoom_out_map),
+                  color: AppStyle.white,
+                  onPressed: () => objetos.isNotEmpty
+                      ? {
+                          operacaoSelected = true,
+                          futuro.clear(),
+                          futuro.addAll(objetos),
+                          zoom(),
+                        }
+                      : showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Ops!'),
+                              content: Text(
+                                  'Voce ainda nao inseriu elementos na tela'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Ok'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+          floatingActionButton: SpeedDial(
+            curve: Curves.bounceIn,
+            overlayColor: Colors.black,
+            closeManually: false,
+            visible: true,
+            overlayOpacity: 0.5,
+            elevation: 8.0,
+            animatedIcon: AnimatedIcons.menu_arrow,
+            animatedIconTheme: IconThemeData(size: 22.0),
+            tooltip: 'Speed Dial',
+            heroTag: 'speed-dial-hero-tag',
+            shape: CircleBorder(),
+            backgroundColor: AppStyle.primary,
+            children: [
+              SpeedDialChild(
+                label: 'Linha',
+                backgroundColor: AppStyle.triadic1,
+                child: Icon(MdiIcons.minus),
+                onTap: () => formaSelecionada = Forma.linha,
+              ),
+              SpeedDialChild(
+                label: 'Triangulo',
+                backgroundColor: AppStyle.triadic1,
+                child: Icon(MdiIcons.triangleOutline),
+                onTap: () => formaSelecionada = Forma.triangulo,
+              ),
+              SpeedDialChild(
+                label: 'Retangulo',
+                backgroundColor: AppStyle.triadic1,
+                child: Icon(MdiIcons.squareOutline),
+                onTap: () => formaSelecionada = Forma.quadradro,
+              ),
+              SpeedDialChild(
+                label: 'Circulo',
+                backgroundColor: AppStyle.triadic1,
+                child: Icon(MdiIcons.circleOutline),
+                onTap: () => formaSelecionada = Forma.circulo,
+              ),
+              SpeedDialChild(
+                label: 'Deletar',
+                backgroundColor: AppStyle.triadic1,
+                child: Icon(Icons.delete),
+                onTap: () => {
+                  _deleteSelected(),
+                },
               ),
             ],
           ),
-        ),
-        floatingActionButton: SpeedDial(
-          curve: Curves.bounceIn,
-          overlayColor: Colors.black,
-          closeManually: false,
-          visible: true,
-          overlayOpacity: 0.5,
-          elevation: 8.0,
-          animatedIcon: AnimatedIcons.menu_arrow,
-          animatedIconTheme: IconThemeData(size: 22.0),
-          tooltip: 'Speed Dial',
-          heroTag: 'speed-dial-hero-tag',
-          shape: CircleBorder(),
-          backgroundColor: AppStyle.primary,
-          children: [
-            SpeedDialChild(
-              label: 'Linha',
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.minus),
-              onTap: () => formaSelecionada = Forma.linha,
-            ),
-            SpeedDialChild(
-              label: 'Triangulo',
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.triangleOutline),
-              onTap: () => formaSelecionada = Forma.triangulo,
-            ),
-            SpeedDialChild(
-              label: 'Quadrado',
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.squareOutline),
-              onTap: () => formaSelecionada = Forma.quadradro,
-            ),
-            SpeedDialChild(
-              label: 'Circulo',
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(MdiIcons.circleOutline),
-              onTap: () => formaSelecionada = Forma.circulo,
-            ),
-            SpeedDialChild(
-              label: 'Deletar',
-              backgroundColor: AppStyle.triadic1,
-              child: Icon(Icons.delete),
-              onTap: () => {
-                _deleteSelected(),
-              },
-            ),
-          ],
-        ),
-        body: state is AjudaSelecionada
-            ? ajudaContexto()
-            : Card(
-                elevation: 0,
-                clipBehavior: Clip.antiAlias,
-                child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.black,
+          body: state is AjudaSelecionada
+              ? ajudaContexto()
+              : Card(
+                  elevation: 0,
+                  clipBehavior: Clip.antiAlias,
+                  child: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                  child: GestureDetector(
-                    onTapDown: (TapDownDetails details) {
-                      if (Vibration.hasVibrator() != null) {
-                        Vibration.vibrate(
-                          duration: 70,
-                        );
-                      }
-                      RenderBox object = context.findRenderObject();
-                      Offset coordenadas =
-                          object.localToGlobal(details.localPosition);
-                      _localPosition.add(coordenadas);
-                      _points = List.from(_points)..add(coordenadas);
-                      if (formaSelecionada == Forma.linha &&
-                          _localPosition.length == 2) {
-                        setState(() {
-                          objetos.add(
-                            Figura(_localPosition, Forma.linha, false),
+                    child: GestureDetector(
+                      onTapDown: (TapDownDetails details) {
+                        if (Vibration.hasVibrator() != null) {
+                          Vibration.vibrate(
+                            duration: 70,
                           );
-                          _localPosition = [];
-                        });
-                      }
+                        }
+                        RenderBox object = context.findRenderObject();
+                        Offset coordenadas =
+                            object.localToGlobal(details.localPosition);
+                        _localPosition.add(coordenadas);
+                        _points = List.from(_points)..add(coordenadas);
 
-                      if (formaSelecionada == Forma.quadradro &&
-                          _localPosition.length == 2) {
-                        Offset p2 =
-                            Offset(_localPosition[1].dx, _localPosition[0].dy);
-                        Offset p3 =
-                            Offset(_localPosition[0].dx, _localPosition[1].dy);
-                        setState(() {
-                          _localPosition.add(p2);
-                          _localPosition.add(p3);
-                          objetos.add(
-                            Figura(_localPosition, Forma.quadradro, false),
-                          );
-                          _localPosition = [];
-                          futuro.clear();
-                        });
-                      }
-
-                      if (formaSelecionada == Forma.triangulo &&
-                          _localPosition.length == 3) {
-                        setState(() {
-                          objetos.add(
-                            Figura(_localPosition, Forma.triangulo, false),
-                          );
-                          _localPosition = [];
-                          futuro.clear();
-                        });
-                      }
-
-                      if (formaSelecionada == Forma.circulo &&
-                          _localPosition.length == 2) {
-                        double delta = pow(
-                                _localPosition[1].dx - _localPosition[0].dx,
-                                2) +
-                            pow(_localPosition[1].dy - _localPosition[0].dy, 2);
-                        double raio = sqrt(delta.abs());
-
-                        Offset xMin = Offset(
-                            _localPosition[0].dx - raio, _localPosition[0].dy);
-                        Offset yMin = Offset(
-                            _localPosition[0].dx, _localPosition[0].dy - raio);
-                        Offset xMax = Offset(
-                            _localPosition[0].dx + raio, _localPosition[0].dy);
-                        Offset yMax = Offset(
-                            _localPosition[0].dx, _localPosition[0].dy + raio);
-
-                        _localPosition.add(xMin);
-                        _localPosition.add(yMin);
-                        _localPosition.add(xMax);
-                        _localPosition.add(yMax);
-                        setState(() {
-                          objetos.add(
-                            Figura(_localPosition, Forma.circulo, false),
-                          );
-                          _localPosition = [];
-                          futuro.clear();
-                        });
-                      }
-
-                      if (formaSelecionada == Forma.nenhuma &&
-                          _localPosition.length == 1 &&
-                          objetos.isNotEmpty) {
-                        _scaffoldKey.currentState.showSnackBar(createSnack(
-                            "Selecione o segundo ponto para fazer o zoom"));
-                      }
-
-                      if (formaSelecionada == Forma.nenhuma &&
-                          _localPosition.length == 2) {
-                        setState(() {
-                          futuro.clear();
-                          futuro.addAll(objetos);
-                          operacaoSelected = true;
-                          zoomClickArea = _localPosition;
-                          zoom(p1: zoomClickArea[0], p2: zoomClickArea[1]);
-                          _localPosition = [];
-                        });
-                      }
-
-                      if (formaSelecionada == Forma.translacao &&
-                          _localPosition.length == 1) {
-                        _scaffoldKey.currentState.showSnackBar(createSnack(
-                            "Selecione o segundo ponto para fazer a translação"));
-                      }
-
-                      if (formaSelecionada == Forma.translacao &&
-                          _localPosition.length == 2) {
-                        double dx =
-                            (_localPosition[0].dx - _localPosition[1].dx).abs();
-                        double dy =
-                            (_localPosition[0].dy - _localPosition[1].dy).abs();
-
-                        double x;
-                        double y;
-
-                        if (_localPosition[0].dx < _localPosition[1].dx) {
-                          x = objetos[0].pontos[0].dx + dx;
-                        } else {
-                          x = objetos[0].pontos[0].dx - dx;
+                        if (formaSelecionada == Forma.linha &&
+                            _localPosition.length == 1) {
+                          _scaffoldKey.currentState.showSnackBar(createSnack(
+                              'Selecione o segundo ponto para desenhar a reta'));
                         }
 
-                        if (_localPosition[0].dy < _localPosition[1].dy) {
-                          y = objetos[0].pontos[0].dy + dy;
-                        } else {
-                          y = objetos[0].pontos[0].dy - dy;
+                        if (formaSelecionada == Forma.linha &&
+                            _localPosition.length == 2) {
+                          setState(() {
+                            objetos.add(
+                              Figura(_localPosition, Forma.linha, false),
+                            );
+                            _localPosition = [];
+                          });
                         }
 
-                        setState(() {
-                          operacaoSelected = true;
-                          _translate(x, y);
-                          _localPosition = [];
-                        });
-                        formaSelecionada = objetos[objetos.length - 1].forma;
-                      }
-                    },
-                    child: CustomPaint(
-                      isComplex: false,
-                      key: cardKey,
-                      painter: MagicalPaint(figuras: objetos),
+                        if (formaSelecionada == Forma.quadradro &&
+                            _localPosition.length == 1) {
+                          _scaffoldKey.currentState.showSnackBar(createSnack(
+                              'Selecione o segundo ponto para desenhar o retangulo'));
+                        }
+
+                        if (formaSelecionada == Forma.quadradro &&
+                            _localPosition.length == 2) {
+                          Offset p2 = Offset(
+                              _localPosition[1].dx, _localPosition[0].dy);
+                          Offset p3 = Offset(
+                              _localPosition[0].dx, _localPosition[1].dy);
+                          setState(() {
+                            _localPosition.add(p2);
+                            _localPosition.add(p3);
+                            objetos.add(
+                              Figura(_localPosition, Forma.quadradro, false),
+                            );
+                            _localPosition = [];
+                            futuro.clear();
+                          });
+                        }
+
+                        if (formaSelecionada == Forma.triangulo &&
+                            _localPosition.length == 1) {
+                          _scaffoldKey.currentState.showSnackBar(
+                              createSnack('Selecione o segundo ponto'));
+                        }
+
+                        if (formaSelecionada == Forma.triangulo &&
+                            _localPosition.length == 2) {
+                          _scaffoldKey.currentState.showSnackBar(createSnack(
+                              'Selecione o segundo ponto para desenhar o triangulo'));
+                        }
+
+                        if (formaSelecionada == Forma.triangulo &&
+                            _localPosition.length == 3) {
+                          setState(() {
+                            objetos.add(
+                              Figura(_localPosition, Forma.triangulo, false),
+                            );
+                            _localPosition = [];
+                            futuro.clear();
+                          });
+                        }
+
+                        if (formaSelecionada == Forma.circulo &&
+                            _localPosition.length == 1) {
+                          _scaffoldKey.currentState.showSnackBar(createSnack(
+                              'Selecione o segundo ponto para desenhar o circulo'));
+                        }
+
+                        if (formaSelecionada == Forma.circulo &&
+                            _localPosition.length == 2) {
+                          double delta = pow(
+                                  _localPosition[1].dx - _localPosition[0].dx,
+                                  2) +
+                              pow(_localPosition[1].dy - _localPosition[0].dy,
+                                  2);
+                          double raio = sqrt(delta.abs());
+
+                          Offset xMin = Offset(_localPosition[0].dx - raio,
+                              _localPosition[0].dy);
+                          Offset yMin = Offset(_localPosition[0].dx,
+                              _localPosition[0].dy - raio);
+                          Offset xMax = Offset(_localPosition[0].dx + raio,
+                              _localPosition[0].dy);
+                          Offset yMax = Offset(_localPosition[0].dx,
+                              _localPosition[0].dy + raio);
+
+                          _localPosition.add(xMin);
+                          _localPosition.add(yMin);
+                          _localPosition.add(xMax);
+                          _localPosition.add(yMax);
+                          setState(() {
+                            objetos.add(
+                              Figura(_localPosition, Forma.circulo, false),
+                            );
+                            _localPosition = [];
+                            futuro.clear();
+                          });
+                        }
+
+                        if (formaSelecionada == Forma.nenhuma &&
+                            _localPosition.length == 1 &&
+                            objetos.isNotEmpty) {
+                          _scaffoldKey.currentState.showSnackBar(createSnack(
+                              "Selecione o segundo ponto para fazer o zoom"));
+                        }
+
+                        if (formaSelecionada == Forma.nenhuma &&
+                            _localPosition.length == 2) {
+                          setState(() {
+                            futuro.clear();
+                            futuro.addAll(objetos);
+                            operacaoSelected = true;
+                            zoomClickArea = _localPosition;
+                            zoom(p1: zoomClickArea[0], p2: zoomClickArea[1]);
+                            _localPosition = [];
+                          });
+                        }
+
+                        if (formaSelecionada == Forma.translacao &&
+                            _localPosition.length == 1) {
+                          _scaffoldKey.currentState.showSnackBar(createSnack(
+                              "Selecione o segundo ponto para fazer a translação"));
+                        }
+
+                        if (formaSelecionada == Forma.translacao &&
+                            _localPosition.length == 2) {
+                          double dx =
+                              (_localPosition[0].dx - _localPosition[1].dx)
+                                  .abs();
+                          double dy =
+                              (_localPosition[0].dy - _localPosition[1].dy)
+                                  .abs();
+
+                          double x;
+                          double y;
+
+                          if (_localPosition[0].dx < _localPosition[1].dx) {
+                            x = objetos[0].pontos[0].dx + dx;
+                          } else {
+                            x = objetos[0].pontos[0].dx - dx;
+                          }
+
+                          if (_localPosition[0].dy < _localPosition[1].dy) {
+                            y = objetos[0].pontos[0].dy + dy;
+                          } else {
+                            y = objetos[0].pontos[0].dy - dy;
+                          }
+
+                          setState(() {
+                            operacaoSelected = true;
+                            _translate(x, y);
+                            _localPosition = [];
+                          });
+                          formaSelecionada = objetos[objetos.length - 1].forma;
+                        }
+                      },
+                      child: CustomPaint(
+                        isComplex: false,
+                        key: cardKey,
+                        painter: MagicalPaint(figuras: objetos),
+                      ),
                     ),
                   ),
                 ),
-              ),
-      );
-    });
+        );
+      },
+    );
   }
 }
