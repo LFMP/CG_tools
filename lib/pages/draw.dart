@@ -628,7 +628,7 @@ class _DrawPageState extends State<DrawPage> {
     return SnackBar(
       content: Text(text),
       backgroundColor: AppStyle.triadic1,
-      duration: Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 800),
     );
   }
 
