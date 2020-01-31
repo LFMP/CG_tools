@@ -1,4 +1,4 @@
-package com.example.cg_tools
+package com.lfmp.cg_tools
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity
