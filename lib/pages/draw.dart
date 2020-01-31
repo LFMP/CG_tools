@@ -38,6 +38,7 @@ class _DrawPageState extends State<DrawPage> {
   Forma formaSelecionada = Forma.linha;
   bool _clearSelected = false;
   bool _ajudaSelecionada = false;
+  bool operacaoSelected = false;
   final GlobalKey cardKey = GlobalKey();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -809,72 +810,97 @@ class _DrawPageState extends State<DrawPage> {
               label: 'Mudar escala',
               backgroundColor: AppStyle.triadic1,
               child: Icon(Icons.crop),
-              onTap: () => showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Digite a escala'),
-                    content: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                width: 80,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'X',
-                                    alignLabelWithHint: true,
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: scaleXController,
-                                ),
-                              ),
-                            ],
+              onTap: () {
+                if (objetos.isEmpty) {
+                  showDialog<void>(
+                    context: _scaffoldKey.currentContext,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Ops!'),
+                        content:
+                            Text('Voce ainda nao inseriu elementos na tela'),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: const Text('Ok'),
+                            onPressed: () {
+                              print(rotateController.text);
+                              Navigator.of(context).pop();
+                            },
                           ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                width: 80,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    labelText: 'Y',
-                                    alignLabelWithHint: true,
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  controller: scaleYController,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: const Text('Cancelar'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      FlatButton(
-                        child: const Text('Confirmar'),
-                        onPressed: () {
-                          _scale(num.parse(scaleXController.text).toDouble(),
-                              num.parse(scaleYController.text).toDouble());
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
+                        ],
+                      );
+                    },
                   );
-                },
-              ),
+                } else {
+                  showDialog<void>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Digite a escala'),
+                        content: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(
+                                    width: 80,
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'X',
+                                        alignLabelWithHint: true,
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      controller: scaleXController,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(
+                                    width: 80,
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: 'Y',
+                                        alignLabelWithHint: true,
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      controller: scaleYController,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: const Text('Cancelar'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          FlatButton(
+                            child: const Text('Confirmar'),
+                            onPressed: () {
+                              _scale(
+                                  num.parse(scaleXController.text).toDouble(),
+                                  num.parse(scaleYController.text).toDouble());
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
             ),
             SpeedDialChild(
               label: 'Zoom extend',
@@ -882,6 +908,28 @@ class _DrawPageState extends State<DrawPage> {
               child: Icon(Icons.zoom_out_map),
               onTap: () {
                 objetos.isNotEmpty ? zoom() : print('objetos zero');
+
+                objetos.isNotEmpty
+                    ? zoom()
+                    : showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Ops!'),
+                            content: Text(
+                                'Voce ainda nao inseriu elementos na tela'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: const Text('Ok'),
+                                onPressed: () {
+                                  print(rotateController.text);
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
               },
             ),
             SpeedDialChild(
@@ -998,8 +1046,18 @@ class _DrawPageState extends State<DrawPage> {
                       }
 
                       if (formaSelecionada == Forma.nenhuma &&
+                          _localPosition.length == 1 &&
+                          objetos.isNotEmpty) {
+                        _scaffoldKey.currentState.showSnackBar(createSnack(
+                            "Selecione o segundo ponto para fazer o zoom"));
+                      }
+
+                      if (formaSelecionada == Forma.nenhuma &&
                           _localPosition.length == 2) {
                         setState(() {
+                          futuro.clear();
+                          futuro.addAll(objetos);
+                          operacaoSelected = true;
                           zoomClickArea = _localPosition;
                           zoom(p1: zoomClickArea[0], p2: zoomClickArea[1]);
                           _localPosition = [];
@@ -1082,6 +1140,7 @@ class _DrawPageState extends State<DrawPage> {
                         }
 
                         setState(() {
+                          operacaoSelected = true;
                           _translate(x, y);
                           _localPosition = [];
                         });
