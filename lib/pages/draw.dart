@@ -242,7 +242,12 @@ class _DrawPageState extends State<DrawPage> {
                       itemBuilder: (BuildContext context, int index) {
                         return ListTile(
                           title: Text(
-                            objetos[index].forma.toString(),
+                            objetos[index]
+                                .forma
+                                .toString()
+                                .split('.')
+                                .last
+                                .toUpperCase(),
                           ),
                           subtitle: Text(
                             objetos[index].pontos.toString(),
@@ -274,7 +279,12 @@ class _DrawPageState extends State<DrawPage> {
                       itemBuilder: (BuildContext context, int index) {
                         return ListTile(
                           title: Text(
-                            objetos[index].forma.toString(),
+                            objetos[index]
+                                .forma
+                                .toString()
+                                .split('.')
+                                .last
+                                .toUpperCase(),
                           ),
                           subtitle: Text(
                             objetos[index].pontos.toString(),
@@ -618,7 +628,7 @@ class _DrawPageState extends State<DrawPage> {
     return SnackBar(
       content: Text(text),
       backgroundColor: AppStyle.triadic1,
-      duration: Duration(milliseconds: 1200),
+      duration: Duration(milliseconds: 1000),
     );
   }
 
@@ -858,12 +868,16 @@ class _DrawPageState extends State<DrawPage> {
                                     operacaoSelected = true,
                                     futuro.clear(),
                                     futuro.addAll(objetos),
-                                    _rotate(
-                                      num.parse(rotateController.text)
-                                          .toDouble(),
-                                      pontoRotacao: Offset(
-                                        num.parse(dxController.text).toDouble(),
-                                        num.parse(dyController.text).toDouble(),
+                                    setState(
+                                      () => _rotate(
+                                        num.parse(rotateController.text)
+                                            .toDouble(),
+                                        pontoRotacao: Offset(
+                                          num.parse(dxController.text)
+                                              .toDouble(),
+                                          num.parse(dyController.text)
+                                              .toDouble(),
+                                        ),
                                       ),
                                     ),
                                     Navigator.of(context).pop(),
@@ -1088,11 +1102,13 @@ class _DrawPageState extends State<DrawPage> {
                                     operacaoSelected = true;
                                     futuro.clear();
                                     futuro.addAll(objetos);
-                                    _scale(
-                                        num.parse(scaleXController.text)
-                                            .toDouble(),
-                                        num.parse(scaleYController.text)
-                                            .toDouble());
+                                    setState(() {
+                                      _scale(
+                                          num.parse(scaleXController.text)
+                                              .toDouble(),
+                                          num.parse(scaleYController.text)
+                                              .toDouble());
+                                    });
                                     Navigator.of(context).pop();
                                   },
                                 ),
@@ -1111,7 +1127,6 @@ class _DrawPageState extends State<DrawPage> {
                                 FlatButton(
                                   child: const Text('Ok'),
                                   onPressed: () {
-                                    print(rotateController.text);
                                     Navigator.of(context).pop();
                                   },
                                 ),
@@ -1127,10 +1142,12 @@ class _DrawPageState extends State<DrawPage> {
                   color: AppStyle.white,
                   onPressed: () => objetos.isNotEmpty
                       ? {
-                          operacaoSelected = true,
-                          futuro.clear(),
-                          futuro.addAll(objetos),
-                          zoom(),
+                          setState(() {
+                            operacaoSelected = true;
+                            futuro.clear();
+                            futuro.addAll(objetos);
+                            zoom();
+                          })
                         }
                       : showDialog<void>(
                           context: context,
